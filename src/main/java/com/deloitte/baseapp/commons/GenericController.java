@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 @Slf4j
@@ -16,6 +17,11 @@ public abstract class GenericController<T extends GenericEntity<T>> {
     public GenericController(GenericRepository<T> repository) {
         this.service = new GenericService<T>(repository) {
         };
+    }
+
+    @GetMapping("")
+    public MessageResponse<List<T>> getAll() {
+        return new MessageResponse<>(service.getAll());
     }
 
     @PostMapping("/datatable")
@@ -43,7 +49,11 @@ public abstract class GenericController<T extends GenericEntity<T>> {
 
     @PostMapping("")
     public MessageResponse create(@RequestBody T created) {
-        return new MessageResponse(service.create(created));
+        try {
+            return new MessageResponse(service.create(created));
+        }  catch (Exception e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
+        }
     }
 
     @PostMapping("/bulk-delete")

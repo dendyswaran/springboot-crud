@@ -1,5 +1,6 @@
 package com.deloitte.baseapp.commons;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,10 @@ public abstract class GenericService<T extends GenericEntity<T>> {
 
     public GenericService(GenericRepository<T> repository) {
         this.repository = repository;
+    }
+
+    public List<T> getAll() {
+        return repository.findAll();
     }
 
     public Page<T> getPage(PagingRequest pagingRequest) {
@@ -36,9 +41,13 @@ public abstract class GenericService<T extends GenericEntity<T>> {
     }
 
     @Transactional
-    public T create(T newDomain) {
+    public T create(T newDomain) throws Exception {
         T dbDomain = newDomain.createNewInstance();
-        return repository.save(dbDomain);
+        try {
+            return repository.save(dbDomain);
+        } catch (final ConstraintViolationException ce) {
+            throw new Exception(ce.getConstraintName());
+        }
     }
 
     @Transactional
