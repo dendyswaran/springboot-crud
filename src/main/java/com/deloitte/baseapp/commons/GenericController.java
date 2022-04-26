@@ -28,7 +28,7 @@ public abstract class GenericController<T extends GenericEntity<T>> {
         try {
             return new MessageResponse(service.get(id));
         } catch (ObjectNotFoundException e) {
-            return new MessageResponse(e.getMessage());
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }
     }
 
@@ -37,7 +37,7 @@ public abstract class GenericController<T extends GenericEntity<T>> {
         try {
             return new MessageResponse(service.update(id, updated));
         } catch (ObjectNotFoundException e) {
-            return new MessageResponse(e.getMessage());
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }
     }
 
@@ -59,7 +59,7 @@ public abstract class GenericController<T extends GenericEntity<T>> {
 
             return new MessageResponse(true);
         } catch (ObjectNotFoundException e) {
-            return new MessageResponse(e.getMessage());
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }
     }
 }

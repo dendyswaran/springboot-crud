@@ -44,6 +44,22 @@ public class MessageResponse<T> {
      * @param message
      */
     public MessageResponse(String message) {
+        this.message = message;
+        this.code = 400;
         this.success = false;
+    }
+
+    /**
+     *
+     * @param message
+     * @param code
+     * @return
+     */
+    public static MessageResponse ErrorWithCode(String message, int code) {
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setMessage(message);
+        messageResponse.setSuccess(false);
+        messageResponse.setCode(code);
+        return messageResponse;
     }
 }

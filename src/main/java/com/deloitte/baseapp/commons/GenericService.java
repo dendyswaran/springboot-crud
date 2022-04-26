@@ -1,15 +1,11 @@
 package com.deloitte.baseapp.commons;
 
-import com.deloitte.baseapp.utils.QueryBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.Predicate;
 import java.util.List;
-import java.util.Map;
 
 public abstract class GenericService<T extends GenericEntity<T>> {
 
