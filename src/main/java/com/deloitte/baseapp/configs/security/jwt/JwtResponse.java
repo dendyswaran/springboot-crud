@@ -1,4 +1,4 @@
-package com.deloitte.baseapp.commons;
+package com.deloitte.baseapp.configs.security.jwt;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.deloitte.baseapp.modules.authentication.controllers;
 
-import com.deloitte.baseapp.commons.JwtResponse;
+import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;

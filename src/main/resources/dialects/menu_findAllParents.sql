@@ -1,0 +1,1 @@
+select * from menu where parent_id is null;

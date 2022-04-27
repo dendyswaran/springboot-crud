@@ -1,6 +1,6 @@
 package com.deloitte.baseapp.modules.authentication.services;
 
-import com.deloitte.baseapp.commons.JwtResponse;
+import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;

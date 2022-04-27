@@ -32,9 +32,19 @@ public class Menu  implements Serializable, GenericEntity<Menu> {
     private Set<Menu> children;
 
     /**
+     * What will happen when a menu is clicked
+     */
+    @Enumerated(EnumType.STRING)
+    private EMenuClickEvent clickEvent = EMenuClickEvent.OPEN;
+
+    private String href;
+
+    /**
      * Menu ordering is based on the highest priority
      */
     private Integer priority;
+
+    private Boolean isActive;
 
     @Override
     public void update(Menu source) {
@@ -45,6 +55,8 @@ public class Menu  implements Serializable, GenericEntity<Menu> {
                 : source.getParent();
         this.children = source.getChildren();
         this.priority = source.getPriority();
+        this.clickEvent = source.getClickEvent();
+        this.isActive = source.getIsActive();
     }
 
     @Override
