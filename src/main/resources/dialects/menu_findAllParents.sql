@@ -1,1 +1,1 @@
-select * from menu where parent_id is null;
+select * from menu where parent_id is null order by name desc;

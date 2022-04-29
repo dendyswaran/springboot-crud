@@ -1,0 +1,1 @@
+select m.* from menu m left join menu p on m.parent_id = p.id where p.id = ?
