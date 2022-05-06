@@ -2,8 +2,12 @@ package com.deloitte.baseapp.modules.authentication.services;
 
 import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
+import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
+import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
+import com.deloitte.baseapp.modules.account.repositories.RoleRepository;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
+import com.deloitte.baseapp.modules.account.services.RoleService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
@@ -17,7 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -25,6 +31,9 @@ public class AuthenticationService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    RoleService roleService;
 
     @Autowired
     PasswordEncoder encoder;
@@ -41,7 +50,7 @@ public class AuthenticationService {
      * @param payload
      * @return
      */
-    public User signup(final SignupRequest payload) throws EmailHasBeenUsedException {
+    public User signup(final SignupRequest payload) throws EmailHasBeenUsedException, RoleNotFoundException {
         final Boolean exists = userRepository.existsByEmail(payload.getEmail());
         if (exists)
             throw new EmailHasBeenUsedException();
@@ -51,6 +60,16 @@ public class AuthenticationService {
         user.setEmail(payload.getEmail());
         user.setPassword(encoder.encode(payload.getPassword()));
 
+        // check roles
+        Set<Role> userRoles = new HashSet<>();
+        for (String role : payload.getRoles()) {
+            final Role _role = roleService.getRoleByName(role);
+            if (null != _role) {
+                userRoles.add(_role);
+            }
+        }
+
+        user.setRoles(userRoles);
         userRepository.save(user);
         log.info("User has been saved: " + user.getId());
 
@@ -72,7 +91,8 @@ public class AuthenticationService {
         return new JwtResponse(accessToken,
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(), null);
+                user.getEmail(),
+                user.getRoles());
     }
 
 }

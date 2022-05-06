@@ -3,6 +3,7 @@ package com.deloitte.baseapp.modules.authentication.controllers;
 import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.modules.account.entities.User;
+import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
@@ -27,6 +28,8 @@ public class AuthenticationController {
             User user = authenticationService.signup(payload);
             return new MessageResponse<>(user);
         } catch (final EmailHasBeenUsedException ex) {
+            return new MessageResponse<>(ex.getMessage());
+        } catch (final RoleNotFoundException ex) {
             return new MessageResponse<>(ex.getMessage());
         }
     }

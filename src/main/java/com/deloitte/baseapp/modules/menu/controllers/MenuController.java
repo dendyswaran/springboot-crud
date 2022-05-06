@@ -6,6 +6,7 @@ import com.deloitte.baseapp.modules.menu.entities.Menu;
 import com.deloitte.baseapp.modules.menu.repositories.MenuRepository;
 import com.deloitte.baseapp.modules.menu.services.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class MenuController extends GenericController<Menu> {
      *
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/parents")
     public MessageResponse findAllParent() {
         try {
