@@ -1,11 +1,12 @@
 package com.deloitte.baseapp.modules.authentication.controllers;
 
-import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.commons.MessageResponse;
+import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
+import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SignupRequest;
 import com.deloitte.baseapp.modules.authentication.services.AuthenticationService;
@@ -20,17 +21,15 @@ import javax.validation.Valid;
 public class AuthenticationController {
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     @PostMapping("/signup")
     public MessageResponse<?> signup(@Valid @RequestBody SignupRequest payload) {
         try {
             User user = authenticationService.signup(payload);
             return new MessageResponse<>(user);
-        } catch (final EmailHasBeenUsedException ex) {
-            return new MessageResponse<>(ex.getMessage());
-        } catch (final RoleNotFoundException ex) {
-            return new MessageResponse<>(ex.getMessage());
+        } catch (final EmailHasBeenUsedException | RoleNotFoundException ex) {
+            return MessageResponse.ErrorWithCode(ex.getMessage(), 400);
         }
     }
 
@@ -40,7 +39,17 @@ public class AuthenticationController {
             final JwtResponse jwt = authenticationService.signin(payload);
             return new MessageResponse<>(jwt);
         } catch (final BadCredentialException ex) {
-            return new MessageResponse<>(ex.getMessage());
+            return MessageResponse.ErrorWithCode(ex.getMessage(), 400);
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public MessageResponse<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest payload) {
+        try {
+            authenticationService.requestForgotPassword(payload);
+            return new MessageResponse<>("Your reset password link has been sent to your email");
+        } catch (final Exception e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }
     }
 

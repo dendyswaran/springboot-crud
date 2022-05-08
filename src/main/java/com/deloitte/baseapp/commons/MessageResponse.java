@@ -39,14 +39,14 @@ public class MessageResponse<T> {
     }
 
     /**
-     * Error response
+     * Simple success response
      *
      * @param message
      */
     public MessageResponse(String message) {
         this.message = message;
-        this.code = 400;
-        this.success = false;
+        this.code = 200;
+        this.success = true;
     }
 
     /**

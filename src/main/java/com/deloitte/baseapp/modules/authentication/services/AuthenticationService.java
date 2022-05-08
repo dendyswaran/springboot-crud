@@ -1,17 +1,20 @@
 package com.deloitte.baseapp.modules.authentication.services;
 
+import com.deloitte.baseapp.commons.LogInfo;
 import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
-import com.deloitte.baseapp.modules.account.repositories.RoleRepository;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
 import com.deloitte.baseapp.modules.account.services.RoleService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
+import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SignupRequest;
+import com.deloitte.baseapp.modules.notification.payloads.EmailRequest;
+import com.deloitte.baseapp.modules.notification.services.NotificationEmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,6 +46,9 @@ public class AuthenticationService {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    NotificationEmailService notificationEmailService;
 
     /**
      * Registers a user by using email and password
@@ -76,6 +82,12 @@ public class AuthenticationService {
         return user;
     }
 
+    /**
+     *
+     * @param payload
+     * @return
+     * @throws BadCredentialException
+     */
     public JwtResponse signin(final SigninRequest payload) throws BadCredentialException {
         final Optional<User> optionalUser = userRepository.findByUsername(payload.getUsername());
         if (optionalUser.isEmpty())
@@ -95,4 +107,22 @@ public class AuthenticationService {
                 user.getRoles());
     }
 
+    /**
+     * Sending forgot password link through email
+     *
+     * @param payload
+     */
+    public void requestForgotPassword(final ForgotPasswordRequest payload) {
+        Optional<User> optionalUser = userRepository.findByEmail(payload.getEmail());
+        if (!optionalUser.isEmpty()) {
+            final User user = optionalUser.get();
+
+            EmailRequest emailRequest = new EmailRequest();
+            emailRequest.setRecipient(user.getEmail());
+            emailRequest.setBody("Forgot Password Body"); //TODO:
+            emailRequest.setSubject("Forgot Password");   //TODO:
+
+            notificationEmailService.sendEmail(emailRequest);
+        }
+    }
 }
