@@ -2,6 +2,7 @@ package com.deloitte.baseapp.modules.menu.entities;
 
 import com.deloitte.baseapp.commons.GenericEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.opencsv.bean.CsvBindByName;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,10 +21,12 @@ public class Menu  implements Serializable, GenericEntity<Menu> {
     private Long id;
 
     @NotBlank
+    @CsvBindByName
     private String name;
 
     @NotBlank
     @Column(unique = true)
+    @CsvBindByName
     private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,6 +42,7 @@ public class Menu  implements Serializable, GenericEntity<Menu> {
     @Enumerated(EnumType.STRING)
     private EMenuClickEvent clickEvent = EMenuClickEvent.OPEN;
 
+    @CsvBindByName
     private String href;
 
     /**
@@ -46,6 +50,7 @@ public class Menu  implements Serializable, GenericEntity<Menu> {
      */
     private Integer priority;
 
+    @CsvBindByName(column = "is_active")
     private Boolean isActive;
 
     @Override

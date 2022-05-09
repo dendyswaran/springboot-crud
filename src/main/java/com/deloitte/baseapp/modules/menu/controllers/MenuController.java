@@ -8,8 +8,10 @@ import com.deloitte.baseapp.modules.menu.services.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -47,6 +49,16 @@ public class MenuController extends GenericController<Menu> {
         } catch (Exception e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 400);
         }
+    }
+
+    @PostMapping("/insert-by-csv-upload")
+    public MessageResponse insertByCSVUpload(@RequestParam("file") final MultipartFile file) {
+       try {
+           final CompletableFuture<Boolean> result = menuService.insertByCSVUpload(file);
+           return new MessageResponse(result.get(), "Success");
+       } catch (Exception e) {
+           return MessageResponse.ErrorWithCode(e.getMessage(), 400);
+       }
     }
 
 }
