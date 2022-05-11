@@ -5,8 +5,6 @@ import com.deloitte.baseapp.modules.menu.entities.Menu;
 import com.deloitte.baseapp.modules.menu.repositories.MenuRepository;
 import com.deloitte.baseapp.utils.CSVFileReader;
 import com.deloitte.baseapp.utils.QueryFileReader;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,9 +12,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -47,12 +42,19 @@ public class MenuService {
         return CompletableFuture.supplyAsync(() -> {
 
             try {
-                final List<Menu> menuList = new CSVFileReader<Menu>().readFromFile(file, Menu.class);
-                menuList.forEach(menu -> {
-                    //TODO: insert to db
+//                final List<Menu> menuList = new CSVFileReader<Menu>().readFromFile(file.getInputStream(), Menu.class);
+//                menuList.forEach(menu -> {
+//                    //TODO: insert to db
+//                    log.info(LogInfo.print(CLASSNAME,
+//                            "insertByCSVUpload", menu.getName() + " has been inserted.."));
+//                });
 
-                    log.info(LogInfo.print(CLASSNAME,
-                            "insertByCSVUpload", menu.getName() + " has been inserted.."));
+                new CSVFileReader<Menu>().readFromFolder(Menu.class, menuList -> {
+                    menuList.forEach(menu -> {
+//                    //TODO: insert to db
+                        log.info(LogInfo.print(CLASSNAME,
+                                "insertByCSVUpload", menu.getName() + " has been inserted.."));
+                    });
                 });
             } catch (Exception e) {
                 log.error(LogInfo.print(CLASSNAME,

@@ -1,19 +1,19 @@
 package com.deloitte.baseapp.utils;
 
-import com.deloitte.baseapp.modules.menu.entities.Menu;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class CSVFileReader<T> {
 
-    public List<T> readFromFile(MultipartFile file, Class<T> clazz) throws Exception {
-        final Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+    public List<T> readFromFile(InputStream file, Class<T> clazz) throws Exception {
+        final Reader reader = new BufferedReader(new InputStreamReader(file));
 
         final CsvToBean<T> csvToBean = new CsvToBeanBuilder(reader)
                 .withType(clazz)
@@ -21,6 +21,36 @@ public class CSVFileReader<T> {
                 .build();
 
         return csvToBean.parse();
+    }
+
+    public List<T> readFromFolder(Class<T> clazz, ICSVFileOnRead<T> onRead) throws Exception {
+        final File file = this.readFile();
+
+        if (file.isDirectory()) {
+            this.readFilesInFolder(file, clazz, onRead);
+        }
+
+        return null;
+    }
+
+    private File readFile() throws Exception {
+        final File resource = new ClassPathResource("files").getFile();
+        if (!resource.exists()) {
+            throw new Exception("File not found");
+        }
+
+        return resource;
+    }
+
+    private void readFilesInFolder(final File folder, Class<T> clazz, ICSVFileOnRead<T> onRead) throws Exception {
+        for (File _file : folder.listFiles()) {
+            if (_file.isFile()) {
+                final InputStream inputStream = new FileInputStream(_file);
+                final List<T> resultsFromFile = this.readFromFile(inputStream, clazz);
+
+                onRead.onData(resultsFromFile);
+            }
+        }
     }
 
 }
