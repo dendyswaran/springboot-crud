@@ -1,7 +1,12 @@
 package com.deloitte.baseapp.commons;
 
+import com.deloitte.baseapp.configs.cache.services.RedisService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,23 +15,62 @@ import java.util.List;
 public abstract class GenericController<T extends GenericEntity<T>> {
 
     private final GenericService<T> service;
+    private String cacheKey;
 
-    public GenericController(GenericRepository<T> repository) {
+    @Autowired
+    private RedisService redisService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public GenericController(GenericRepository<T> repository, final String cacheKey) {
+        this.cacheKey = cacheKey;
         this.service = new GenericService<T>(repository) {
         };
     }
 
     @GetMapping("")
-    public MessageResponse<List<T>> getAll() {
-        return new MessageResponse<>(service.getAll());
+    public MessageResponse getAll() {
+        final String key = cacheKey + "_" + "getAll";
+        try {
+            final String redisValue = redisService.getValue(key);
+
+            if (!StringUtils.hasText(redisValue)) {
+                final List<T> result = service.getAll();
+                redisService.setValue(
+                        key,
+                        objectMapper.writeValueAsString(result));
+
+                return new MessageResponse<>(service.getAll());
+            } else {
+                return new MessageResponse<>(objectMapper.readValue(redisValue, List.class), "from redis");
+            }
+
+        } catch (JsonProcessingException e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
+        }
     }
 
     @GetMapping("/{id}")
     public MessageResponse getOne(@PathVariable Long id) {
         try {
-            return new MessageResponse(service.get(id));
+            final String key = cacheKey + "_" + "getOne_" + id;
+            final String redisValue = redisService.getValue(key);
+
+            if (!StringUtils.hasText(redisValue)) {
+                final T result = service.get(id);
+                redisService.setValue(
+                        key,
+                        objectMapper.writeValueAsString(result));
+
+                return new MessageResponse<>(result);
+            } else {
+                return new MessageResponse<>(objectMapper.readValue(redisValue, Object.class), "from redis");
+            }
+
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
+        } catch (JsonProcessingException e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.deloitte.baseapp.commons;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,16 +17,19 @@ public abstract class GenericService<T extends GenericEntity<T>> {
         this.repository = repository;
     }
 
+    @Cacheable(value = "warmStorage")
     public List<T> getAll() {
         return repository.findAll();
     }
 
+    @Cacheable(value = "warmStorage")
     public Page<T> getPage(PagingRequest pagingRequest) {
         final GenericSpecification<T> specification = new GenericSpecification<>(pagingRequest);
         final Pageable pageable = PageRequest.of(pagingRequest.getPage(), pagingRequest.getLength());
         return repository.findAll(specification, pageable);
     }
 
+    @Cacheable(value = "warmStorage")
     public T get(Long id) throws ObjectNotFoundException {
         return repository.findById(id).orElseThrow(
                 () -> new ObjectNotFoundException()

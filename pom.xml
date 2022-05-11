@@ -21,6 +21,8 @@
 		<lombok.version>1.18.22</lombok.version>
 		<jwt.version>0.9.1</jwt.version>
 		<opencsv.version>5.6</opencsv.version>
+		<springdataredis.version>2.6.7</springdataredis.version>
+		<springbootcache.version>2.6.7</springbootcache.version>
 	</properties>
 
 	<dependencies>
@@ -47,6 +49,19 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+			<version>${springdataredis.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
 		</dependency>
 
 		<dependency>

@@ -7,6 +7,7 @@ import com.deloitte.baseapp.utils.CSVFileReader;
 import com.deloitte.baseapp.utils.QueryFileReader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class MenuService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Cacheable(value = "menuCache", unless= "#result.size() == 0")
     public List<Menu> findAllParent() throws Exception {
         final QueryFileReader<Menu> queryFileReader = new QueryFileReader<>(jdbcTemplate, Menu.class);
         return queryFileReader.queryMulti("menu_findAllParents.sql");

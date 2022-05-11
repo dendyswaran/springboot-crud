@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoleController extends GenericController<Role> {
 
     public RoleController(GenericRepository<Role> repository) {
-        super(repository);
+        super(repository, "role");
     }
 }

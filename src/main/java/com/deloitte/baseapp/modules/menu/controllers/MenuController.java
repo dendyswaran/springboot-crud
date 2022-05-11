@@ -22,7 +22,7 @@ public class MenuController extends GenericController<Menu> {
     private MenuService menuService;
 
     public MenuController(MenuRepository repository) {
-        super(repository);
+        super(repository, "menu");
     }
 
     /**
