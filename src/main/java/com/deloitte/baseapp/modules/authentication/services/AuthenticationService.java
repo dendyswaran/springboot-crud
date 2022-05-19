@@ -3,9 +3,11 @@ package com.deloitte.baseapp.modules.authentication.services;
 import com.deloitte.baseapp.commons.LogInfo;
 import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
+import com.deloitte.baseapp.modules.account.entities.ERole;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
+import com.deloitte.baseapp.modules.account.repositories.RoleRepository;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
 import com.deloitte.baseapp.modules.account.services.RoleService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
@@ -50,6 +52,9 @@ public class AuthenticationService {
     @Autowired
     NotificationEmailService notificationEmailService;
 
+    @Autowired
+    RoleRepository roleRepository;
+
     /**
      * Registers a user by using email and password
      *
@@ -67,11 +72,20 @@ public class AuthenticationService {
         user.setPassword(encoder.encode(payload.getPassword()));
 
         // check roles
+        Set <String> strRoles = payload.getRoles();
         Set<Role> userRoles = new HashSet<>();
-        for (String role : payload.getRoles()) {
-            final Role _role = roleService.getRoleByName(role);
-            if (null != _role) {
-                userRoles.add(_role);
+
+        // add if statement so that if there are no roles sent in the request, the system automatically set user to role_user
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(String.valueOf(ERole.ROLE_USER))
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            userRoles.add(userRole);
+        }else {
+            for (String role : payload.getRoles()) {
+                final Role _role = roleService.getRoleByName(role);
+                if (null != _role) {
+                    userRoles.add(_role);
+                }
             }
         }
 
