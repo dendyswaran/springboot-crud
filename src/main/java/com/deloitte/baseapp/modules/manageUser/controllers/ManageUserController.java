@@ -9,6 +9,7 @@ import com.deloitte.baseapp.modules.manageUser.services.ManageUserService;
 import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.configs.security.services.UserDetailsImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/manage-user")
+@CrossOrigin(origins = "*")
 public class ManageUserController extends GenericController<User> {
 
     final ManageUserService manageUserService;
