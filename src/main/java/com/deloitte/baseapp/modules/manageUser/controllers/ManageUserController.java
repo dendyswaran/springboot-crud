@@ -39,10 +39,10 @@ public class ManageUserController extends GenericController<User> {
 
     @PutMapping("/edit/{id}")
     public MessageResponse updateUser(@PathVariable("id") Long id, @RequestBody UserResponse values) {
-        User updated  = new User();
-        updated.setUsername(values.getUsername());
-        updated.setEmail(values.getEmail());
         try {
+            User updated = userService.get(id);
+            updated.setUsername(values.getUsername());
+            updated.setEmail(values.getEmail());
             return new MessageResponse(userService.update(id, updated));
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
