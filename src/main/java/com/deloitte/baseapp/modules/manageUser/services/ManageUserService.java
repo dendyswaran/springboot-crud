@@ -1,5 +1,6 @@
 package com.deloitte.baseapp.modules.manageUser.services;
 
+import com.deloitte.baseapp.commons.GenericService;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
 import com.deloitte.baseapp.modules.manageUser.payloads.UserResponse;
@@ -23,4 +24,5 @@ public class ManageUserService {
                 .collect(Collectors.toList());
         return userList;
     }
+
 }

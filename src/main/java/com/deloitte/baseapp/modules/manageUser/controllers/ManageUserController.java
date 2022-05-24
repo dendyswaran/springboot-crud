@@ -2,17 +2,16 @@ package com.deloitte.baseapp.modules.manageUser.controllers;
 
 import com.deloitte.baseapp.commons.GenericController;
 import com.deloitte.baseapp.commons.GenericRepository;
+import com.deloitte.baseapp.commons.ObjectNotFoundException;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
+import com.deloitte.baseapp.modules.account.services.UserService;
 import com.deloitte.baseapp.modules.manageUser.payloads.UserResponse;
 import com.deloitte.baseapp.modules.manageUser.services.ManageUserService;
 import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.configs.security.services.UserDetailsImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,9 +21,11 @@ import java.util.List;
 public class ManageUserController extends GenericController<User> {
 
     final ManageUserService manageUserService;
+    final UserService userService;
 
-    public ManageUserController(GenericRepository<User> repository, ManageUserService manageUserService) {
+    public ManageUserController(GenericRepository<User> repository, UserService userService, ManageUserService manageUserService) {
         super(repository, "manageUser");
+        this.userService = userService;
         this.manageUserService = manageUserService;
     }
 
@@ -34,5 +35,17 @@ public class ManageUserController extends GenericController<User> {
 
         List<UserResponse> users = manageUserService.getAllUser();
         return new MessageResponse<>(users);
+    }
+
+    @PutMapping("/edit/{id}")
+    public MessageResponse updateUser(@PathVariable("id") Long id, @RequestBody UserResponse values) {
+        User updated  = new User();
+        updated.setUsername(values.getUsername());
+        updated.setEmail(values.getEmail());
+        try {
+            return new MessageResponse(userService.update(id, updated));
+        } catch (ObjectNotFoundException e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.deloitte.baseapp.modules.account.services;
 
+import com.deloitte.baseapp.commons.GenericRepository;
+import com.deloitte.baseapp.commons.GenericService;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.UserNotFoundException;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
@@ -11,10 +13,14 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserService {
+public class UserService extends GenericService<User> {
 
     @Autowired
     UserRepository userRepository;
+
+    public UserService(GenericRepository<User> repository) {
+        super(repository);
+    }
 
     /**
      *
