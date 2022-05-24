@@ -4,12 +4,16 @@ import com.deloitte.baseapp.commons.GenericEntity;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 @Data
 public class UserResponse implements GenericEntity<UserResponse> {
+    @NotBlank
     private Long userId;
+    @NotBlank
     private String username;
+    @NotBlank
     private String email;
     private Set<Role> roles;
 
