@@ -1,6 +1,7 @@
 package com.deloitte.baseapp.modules.account.entities;
 
 import com.deloitte.baseapp.commons.GenericEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.HashSet;
@@ -34,6 +35,7 @@ public class User  implements GenericEntity<User> {
 
   @NotBlank
   @Size(max = 120)
+  @JsonIgnore
   private String password;
 
   @ManyToMany(fetch = FetchType.LAZY)
@@ -50,6 +52,7 @@ public class User  implements GenericEntity<User> {
     this.email = email;
     this.password = password;
   }
+
 
   @Override
   public void update(User source) {
