@@ -8,6 +8,7 @@ import com.deloitte.baseapp.modules.manageUser.payloads.UserResponse;
 import com.deloitte.baseapp.modules.manageUser.services.ManageUserService;
 import com.deloitte.baseapp.configs.security.services.UserDetailsImpl;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/manage-user")
@@ -64,26 +66,18 @@ public class ManageUserController  extends GenericController<User>{
         return MessageResponse.ErrorWithCode("User cannot delete self account", 401);
     }
 
-    @PostMapping("/datatable-users")
+    @PostMapping("/datatable/users")
     public MessageResponse getDatatableManageUser(@RequestBody PagingRequest pagingRequest) {
         final UserDetailsImpl userPrincipal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Map<String, PagingRequest.FilterObject> dtSearch = pagingRequest.getDtSearch() != null ? pagingRequest.getDtSearch() : new HashMap<>();
-
-        PagingRequest.FilterObject filterObject = new PagingRequest.FilterObject();
-        filterObject.setMatchMode(String.valueOf(PagingRequest.FilterObjectMode.NOT_EQUALS));
-        filterObject.setType(String.valueOf(PagingRequest.FilterObjectType.NUMERIC));
-        String userId = String.valueOf(userPrincipal.getId());
-        filterObject.setValue(userId);
-
-
-        dtSearch.put("id", filterObject);
-
-        dtSearch.forEach((key, value) -> System.out.println(key + ":" + value));
-
-        pagingRequest.setDtSearch(dtSearch);
-        Page<User> page = userService.getPage(pagingRequest);
-//        page.map(() -> System.out.println(user.toString()));
-        page.getContent();
-        return new MessageResponse<>();
+        try {
+            Page<User> page = userService.getPage(pagingRequest);
+            List<User> filteredList = page.stream()
+                    .filter(user -> !user.getId().equals(userPrincipal.getId()))
+                    .collect(Collectors.toList());
+//            filteredList.forEach((user) -> System.out.println(user.getUsername()));
+            return new MessageResponse<>(new PageImpl<User>(filteredList, page.getPageable(), page.getTotalPages()));
+        }catch(Exception e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
+        }
     }
 }
