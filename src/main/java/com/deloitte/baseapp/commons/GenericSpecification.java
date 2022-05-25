@@ -42,6 +42,9 @@ public class GenericSpecification<T> implements Specification<T> {
                     case EQUALS:
                         predicates.add(criteriaBuilder.equal(root.get(key), this.predictValueType(type, value)));
                         break;
+                    case NOT_EQUALS:
+                        predicates.add(criteriaBuilder.notEqual(root.get(key), this.predictValueType(type, value)));
+                        break;
                 }
             }
         }
