@@ -28,7 +28,8 @@ public class PagingRequest {
 
     public enum FilterObjectMode {
         CONTAINS("contains"),
-        EQUALS("equals");
+        EQUALS("equals"),
+        NOT_EQUALS("notEquals");
 
         private String mode;
 

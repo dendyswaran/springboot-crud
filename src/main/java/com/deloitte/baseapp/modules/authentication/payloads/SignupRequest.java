@@ -24,7 +24,9 @@ public class SignupRequest {
     @NotBlank
     private String password;
 
-    @NotNull
+    // The request made are not included with role
+    // It is better to erase notnull
+    //    @NotNull
     private Set<String> roles;
 
 }
