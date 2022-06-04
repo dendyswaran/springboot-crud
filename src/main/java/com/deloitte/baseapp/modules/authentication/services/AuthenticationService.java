@@ -1,15 +1,18 @@
 package com.deloitte.baseapp.modules.authentication.services;
 
 import com.deloitte.baseapp.commons.LogInfo;
+import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.account.entities.ERole;
+import com.deloitte.baseapp.modules.account.entities.OrgUser;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.account.repositories.RoleRepository;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
 import com.deloitte.baseapp.modules.account.services.RoleService;
+import com.deloitte.baseapp.modules.account.services.TOrgUserService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
@@ -54,6 +57,10 @@ public class AuthenticationService {
 
     @Autowired
     RoleRepository roleRepository;
+
+
+    @Autowired
+    TOrgUserService tOrgUserService;
 
     /**
      * Registers a user by using email and password
@@ -138,5 +145,38 @@ public class AuthenticationService {
 
             notificationEmailService.sendEmail(emailRequest);
         }
+    }
+
+    public OrgUser tSignup(final SignupRequest payload) throws EmailHasBeenUsedException, RoleNotFoundException {
+        final Boolean exists = (Boolean)tOrgUserService.checkExistByEmail(payload.getEmail());
+
+        if (exists)
+            throw new EmailHasBeenUsedException();
+
+
+        OrgUser user = new OrgUser();
+        user.setName(payload.getUsername());
+        user.setEmail(payload.getEmail());
+        user.setPassword(encoder.encode(payload.getPassword()));
+
+        // check roles
+        Set <String> strRoles = payload.getRoles();
+        Set<Role> userRoles = new HashSet<>();
+
+        // add if statement so that if there are no roles sent in the request, the system automatically set user to role_user
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(String.valueOf(ERole.ROLE_USER))
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            userRoles.add(userRole);
+        }else {
+            for (String role : payload.getRoles()) {
+                final Role _role = roleService.getRoleByName(role);
+                if (null != _role) {
+                    userRoles.add(_role);
+                }
+            }
+        }
+        log.info("User has been saved: " + user.getId());
+        return tOrgUserService.createUser(user);
     }
 }

@@ -4,6 +4,7 @@ import com.deloitte.baseapp.configs.security.jwt.AuthEntryPointJwt;
 import com.deloitte.baseapp.configs.security.jwt.AuthTokenFilter;
 import com.deloitte.baseapp.configs.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableAutoConfiguration
 @EnableGlobalMethodSecurity(
          prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -28,6 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
+
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -58,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/manage-user/**").authenticated()
                 .antMatchers("/api/test/**").permitAll()
+                .antMatchers("/api/org/**").permitAll()
                 .anyRequest().authenticated();
 
 

@@ -12,21 +12,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-public abstract class GenericController<T extends GenericEntity<T>> {
+public abstract class TGenericController<T extends TGenericEntity<T,ID>, ID> {
 
-    private final GenericService<T> service;
-    private String cacheKey;
+    private final String cacheKey;
+
+    private final TGenericService<T, ID> service;
 
     @Autowired
     private RedisService redisService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public GenericController(GenericRepository<T> repository, final String cacheKey) {
+    public TGenericController(TGenericRepository<T,ID> repository, final String cacheKey) {
         this.cacheKey = cacheKey;
-        this.service = new GenericService<T>(repository) {
+        this.service = new TGenericService<>(repository) {
         };
     }
+
 
     @GetMapping("")
     public MessageResponse<?> getAll() {
@@ -51,7 +53,7 @@ public abstract class GenericController<T extends GenericEntity<T>> {
     }
 
     @GetMapping("/{id}")
-    public MessageResponse getOne(@PathVariable Long id) {
+    public MessageResponse<?> getOne(@PathVariable ID id) {
         try {
             final String key = cacheKey + "_" + "getOne_" + id;
             final String redisValue = redisService.getValue(key);
@@ -80,38 +82,37 @@ public abstract class GenericController<T extends GenericEntity<T>> {
     }
 
     @PostMapping("")
-    public MessageResponse create(@RequestBody T created) {
+    public MessageResponse<?> create(@RequestBody T created) {
         try {
-            return new MessageResponse(service.create(created));
+            return new MessageResponse<>(service.create(created));
         } catch (Exception e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }
     }
 
-    @PostMapping("/bulk-delete")
-    public MessageResponse deleteBulk(@RequestBody CommonRequest.BulkDelete payload) {
-        service.deleteBulk(payload.getIds());
-        return new MessageResponse(true);
-    }
+//    @PostMapping("/bulk-delete")
+//    public MessageResponse deleteBulk(@RequestBody CommonRequest.BulkDelete payload) {
+//        service.deleteBulk(payload.getIds());
+//        return new MessageResponse(true);
+//    }
 
     @PutMapping("/{id}")
-    public MessageResponse update(@PathVariable("id") Long id, @RequestBody T updated) {
+    public MessageResponse<?> update(@PathVariable("id") ID id, @RequestBody T updated) {
         try {
-            return new MessageResponse(service.update(id, updated));
+            return new MessageResponse<>(service.update(id, updated));
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }
     }
 
     @DeleteMapping("/{id}")
-    public MessageResponse delete(@PathVariable Long id) {
+    public MessageResponse<?> delete(@PathVariable ID id) {
         try {
             service.delete(id);
 
-            return new MessageResponse(true);
+            return new MessageResponse<>(true);
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }
     }
 }
-

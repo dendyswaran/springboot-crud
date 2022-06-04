@@ -5,15 +5,15 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
-public abstract class GenericService<T extends GenericEntity<T>> {
+public abstract class TGenericService <T extends TGenericEntity<T,ID>, ID> {
 
-    private final GenericRepository<T> repository;
+    private final TGenericRepository<T,ID> repository;
 
-    public GenericService(GenericRepository<T> repository) {
+    public TGenericService(TGenericRepository<T,ID> repository) {
         this.repository = repository;
     }
 
@@ -30,14 +30,14 @@ public abstract class GenericService<T extends GenericEntity<T>> {
     }
 
     @Cacheable(value = "warmStorage")
-    public T get(Long id) throws ObjectNotFoundException {
+    public T get(ID id) throws ObjectNotFoundException {
         return repository.findById(id).orElseThrow(
                 ObjectNotFoundException::new
         );
     }
 
     @Transactional
-    public T update(Long id, T updated) throws ObjectNotFoundException {
+    public T update (ID id, T updated) throws ObjectNotFoundException{
         T dbDomain = get(id);
         dbDomain.update(updated);
 
@@ -49,20 +49,15 @@ public abstract class GenericService<T extends GenericEntity<T>> {
         T dbDomain = newDomain.createNewInstance();
         try {
             return repository.save(dbDomain);
-        } catch (final ConstraintViolationException ce) {
+        }catch(final ConstraintViolationException ce) {
             throw new Exception(ce.getConstraintName());
         }
     }
 
     @Transactional
-    public void delete(Long id) throws ObjectNotFoundException {
-        //check if object with this id exists
+    public void delete(ID id) throws ObjectNotFoundException{
         get(id);
         repository.deleteById(id);
     }
 
-    public void deleteBulk(List<Long> ids) {
-        repository.deleteAllById(ids);
-    }
 }
-

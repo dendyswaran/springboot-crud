@@ -53,4 +53,16 @@ public class AuthenticationController {
         }
     }
 
+    @PostMapping("/new-tuser")
+    public MessageResponse<?> signUpOrgUser(@Valid @RequestBody SignupRequest payload) {
+         try {
+             authenticationService.tSignup(payload);
+             return new MessageResponse<>("New User Successfully Registered");
+         } catch (RoleNotFoundException | RuntimeException | EmailHasBeenUsedException e) {
+             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
+         }
+    }
+
+
+
 }
