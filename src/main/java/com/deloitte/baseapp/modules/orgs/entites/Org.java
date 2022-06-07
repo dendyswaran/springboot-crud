@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -43,7 +44,10 @@ public class Org implements TGenericEntity<Org, UUID> {
     @ManyToOne
     @JoinColumn(name = "created_by")
     @CreatedBy
-    private OrgUser createdBy;
+    private OrgUser orgCreatedBy;
+
+    @OneToMany(mappedBy = "org")
+    private Set<OrgUserGroup> orgGroup;
 
     public Org(String name, String code) {
         this.name = name;

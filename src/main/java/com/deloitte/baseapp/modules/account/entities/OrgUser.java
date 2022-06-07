@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +37,9 @@ public class OrgUser implements TGenericEntity<OrgUser, UUID> {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="org_id", referencedColumnName = "id")
     private Org org;
+
+    @OneToMany(mappedBy = "orgCreatedBy")
+    private Set<Org> orgs;
 
     @Override
     public void update(OrgUser source) {
