@@ -1,4 +1,4 @@
-package com.deloitte.baseapp.commons;
+package com.deloitte.baseapp.commons.tModules;
 
 public interface TGenericEntity<T,ID>{
     void update(T source);

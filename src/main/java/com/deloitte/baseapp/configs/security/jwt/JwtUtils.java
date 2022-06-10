@@ -2,6 +2,7 @@ package com.deloitte.baseapp.configs.security.jwt;
 
 import java.util.Date;
 
+import com.deloitte.baseapp.configs.security.services.OrgUserDetailsImpl;
 import com.deloitte.baseapp.configs.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class JwtUtils {
 
   public String generateJwtToken(Authentication authentication) {
 
-    UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+    OrgUserDetailsImpl userPrincipal = (OrgUserDetailsImpl) authentication.getPrincipal();
 
     return Jwts.builder()
         .setSubject((userPrincipal.getUsername()))

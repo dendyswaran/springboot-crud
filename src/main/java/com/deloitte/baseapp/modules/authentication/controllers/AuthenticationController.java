@@ -1,7 +1,8 @@
 package com.deloitte.baseapp.modules.authentication.controllers;
 
 import com.deloitte.baseapp.commons.MessageResponse;
-import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
+import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
+import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
@@ -10,7 +11,7 @@ import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordReques
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SignupRequest;
 import com.deloitte.baseapp.modules.authentication.services.AuthenticationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.deloitte.baseapp.modules.tAccount.services.OrgUserService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,8 +21,14 @@ import javax.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
+
+    private final OrgUserService orgUserService;
+
+    public AuthenticationController(AuthenticationService authenticationService, OrgUserService orgUserService) {
+        this.authenticationService = authenticationService;
+        this.orgUserService = orgUserService;
+    }
 
     @PostMapping("/signup")
     public MessageResponse<?> signup(@Valid @RequestBody SignupRequest payload) {
@@ -36,7 +43,7 @@ public class AuthenticationController {
     @PostMapping("/signin")
     public MessageResponse<?> signin(@Valid @RequestBody SigninRequest payload) {
         try {
-            final JwtResponse jwt = authenticationService.signin(payload);
+            final GenericJwtResponse<Role, Long> jwt = authenticationService.signin(payload);
             return new MessageResponse<>(jwt);
         } catch (final BadCredentialException ex) {
             return MessageResponse.ErrorWithCode(ex.getMessage(), 400);
@@ -52,17 +59,6 @@ public class AuthenticationController {
             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }
     }
-
-    @PostMapping("/new-tuser")
-    public MessageResponse<?> signUpOrgUser(@Valid @RequestBody SignupRequest payload) {
-         try {
-             authenticationService.tSignup(payload);
-             return new MessageResponse<>("New User Successfully Registered");
-         } catch (RoleNotFoundException | RuntimeException | EmailHasBeenUsedException e) {
-             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
-         }
-    }
-
 
 
 }

@@ -1,18 +1,16 @@
 package com.deloitte.baseapp.modules.authentication.services;
 
-import com.deloitte.baseapp.commons.LogInfo;
-import com.deloitte.baseapp.commons.MessageResponse;
-import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
+import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.account.entities.ERole;
-import com.deloitte.baseapp.modules.account.entities.OrgUser;
+import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.account.repositories.RoleRepository;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
 import com.deloitte.baseapp.modules.account.services.RoleService;
-import com.deloitte.baseapp.modules.account.services.TOrgUserService;
+import com.deloitte.baseapp.modules.tAccount.services.OrgUserService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
@@ -60,7 +58,7 @@ public class AuthenticationService {
 
 
     @Autowired
-    TOrgUserService tOrgUserService;
+    OrgUserService orgUserService;
 
     /**
      * Registers a user by using email and password
@@ -109,7 +107,7 @@ public class AuthenticationService {
      * @return
      * @throws BadCredentialException
      */
-    public JwtResponse signin(final SigninRequest payload) throws BadCredentialException {
+    public GenericJwtResponse<Role, Long> signin(final SigninRequest payload) throws BadCredentialException {
         final Optional<User> optionalUser = userRepository.findByUsername(payload.getUsername());
         if (optionalUser.isEmpty())
             throw new BadCredentialException();
@@ -121,7 +119,7 @@ public class AuthenticationService {
         final String accessToken = jwtUtils.generateJwtToken(authentication);
         final User user = optionalUser.get();
 
-        return new JwtResponse(accessToken,
+        return new GenericJwtResponse<Role, Long>(accessToken,
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
@@ -148,7 +146,7 @@ public class AuthenticationService {
     }
 
     public OrgUser tSignup(final SignupRequest payload) throws EmailHasBeenUsedException, RoleNotFoundException {
-        final Boolean exists = (Boolean)tOrgUserService.checkExistByEmail(payload.getEmail());
+        final Boolean exists = (Boolean) orgUserService.checkExistByEmail(payload.getEmail());
 
         if (exists)
             throw new EmailHasBeenUsedException();
@@ -177,6 +175,6 @@ public class AuthenticationService {
             }
         }
         log.info("User has been saved: " + user.getId());
-        return tOrgUserService.createUser(user);
+        return orgUserService.createUser(user);
     }
 }

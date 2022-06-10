@@ -1,17 +1,16 @@
 package com.deloitte.baseapp.modules.orgs.entites;
 
-import com.deloitte.baseapp.commons.TGenericEntity;
-import com.deloitte.baseapp.modules.account.entities.OrgUser;
+import com.deloitte.baseapp.commons.AuditModel;
+import com.deloitte.baseapp.commons.tModules.TGenericEntity;
+import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
+import com.deloitte.baseapp.modules.teams.entities.OrgTeam;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,7 +23,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class Org implements TGenericEntity<Org, UUID> {
+public class Org extends AuditModel implements TGenericEntity<Org, UUID> {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
@@ -37,17 +36,13 @@ public class Org implements TGenericEntity<Org, UUID> {
     @OneToOne(mappedBy = "org")
     private OrgUser user;
 
-    @CreatedDate
-    @Column(name="date_created")
-    private Instant createdDate;
-
-    @ManyToOne
-    @JoinColumn(name = "created_by")
-    @CreatedBy
-    private OrgUser orgCreatedBy;
+    @OneToMany(mappedBy = "org")
+    @ToString.Exclude
+    private Set<OrgUsrGroup> orgGroup;
 
     @OneToMany(mappedBy = "org")
-    private Set<OrgUserGroup> orgGroup;
+    @ToString.Exclude
+    private Set<OrgTeam> orgTeams;
 
     public Org(String name, String code) {
         this.name = name;
@@ -60,11 +55,14 @@ public class Org implements TGenericEntity<Org, UUID> {
 
     @Override
     public void update(Org source) {
-
+        this.name = source.getName();
+        this.code = source.getCode();
     }
 
     @Override
     public Org createNewInstance() {
-        return null;
+        Org newInstance = new Org();
+        newInstance.update(this);
+        return newInstance;
     }
 }

@@ -2,9 +2,7 @@ package com.deloitte.baseapp.configs.security;
 
 import com.deloitte.baseapp.configs.security.jwt.AuthEntryPointJwt;
 import com.deloitte.baseapp.configs.security.jwt.AuthTokenFilter;
-import com.deloitte.baseapp.configs.security.services.UserDetailsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import com.deloitte.baseapp.configs.security.services.OrgUserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,12 +22,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
          prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    final
+    OrgUserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
+    public WebSecurityConfig(OrgUserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -58,6 +59,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/org-auth/**").permitAll()
+                .antMatchers("/api/org-group/**").permitAll()
+                .antMatchers("/api/mt-status/**").permitAll()
+                .antMatchers("/api/org-user/**").authenticated()
                 .antMatchers("/api/manage-user/**").authenticated()
                 .antMatchers("/api/test/**").permitAll()
                 .antMatchers("/api/org/**").permitAll()

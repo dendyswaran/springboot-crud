@@ -1,7 +1,10 @@
-package com.deloitte.baseapp.modules.account.entities;
+package com.deloitte.baseapp.modules.tAccount.entities;
 
-import com.deloitte.baseapp.commons.TGenericEntity;
+import com.deloitte.baseapp.commons.AuditModel;
+import com.deloitte.baseapp.commons.tModules.TGenericEntity;
 import com.deloitte.baseapp.modules.orgs.entites.Org;
+import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
+import com.deloitte.baseapp.modules.MTStatus.entities.MtStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,11 +24,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class OrgUser implements TGenericEntity<OrgUser, UUID> {
+public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID> {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
     private String code;
@@ -38,8 +41,13 @@ public class OrgUser implements TGenericEntity<OrgUser, UUID> {
     @JoinColumn(name="org_id", referencedColumnName = "id")
     private Org org;
 
-    @OneToMany(mappedBy = "orgCreatedBy")
-    private Set<Org> orgs;
+    @OneToMany(mappedBy = "orgUser")
+    private Set<OrgUsrUsrGroup> orgUsrUsrGroups;
+
+
+    @ManyToOne
+    @JoinColumn(name = "mt_status_id")
+    private MtStatus mtStatus;
 
     @Override
     public void update(OrgUser source) {

@@ -1,4 +1,4 @@
-package com.deloitte.baseapp.commons;
+package com.deloitte.baseapp.commons.tModules;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

@@ -1,6 +1,6 @@
 package com.deloitte.baseapp.modules.orgs.repositories;
 
-import com.deloitte.baseapp.commons.TGenericRepository;
+import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.modules.orgs.entites.Org;
 import org.springframework.stereotype.Repository;
 

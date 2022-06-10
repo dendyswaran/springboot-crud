@@ -1,7 +1,7 @@
 package com.deloitte.baseapp.modules.orgs.services;
 
-import com.deloitte.baseapp.commons.TGenericRepository;
-import com.deloitte.baseapp.commons.TGenericService;
+import com.deloitte.baseapp.commons.tModules.TGenericRepository;
+import com.deloitte.baseapp.commons.tModules.TGenericService;
 import com.deloitte.baseapp.modules.orgs.entites.Org;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,12 @@ public class OrgService extends TGenericService<Org, UUID> {
         return repository.existsByCode(code);
     }
 
+    public Boolean checkExistById(UUID id) {
+        return repository.existsById(id);
+    }
+
     public Org createOrg(Org org) {
         return this.repository.save(org);
     }
+
 }

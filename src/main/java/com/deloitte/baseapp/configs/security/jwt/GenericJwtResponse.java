@@ -1,25 +1,24 @@
 package com.deloitte.baseapp.configs.security.jwt;
 
-import com.deloitte.baseapp.modules.account.entities.Role;
 import lombok.Data;
 
 import java.util.Set;
 
 @Data
-public class JwtResponse {
+public class GenericJwtResponse<T,ID> {
     private String token;
     private String type = "Bearer";
-    private Long id;
+    private ID id;
     private String username;
     private String email;
-    private Set<Role> roles;
+    private Set<T> rolesId;
 
-    public JwtResponse(String accessToken, Long id, String username, String email, Set<Role> roles) {
+    public GenericJwtResponse(String accessToken, ID id, String username, String email, Set<T> roles) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
         this.email = email;
-        this.roles = roles;
+        this.rolesId = roles;
     }
 
 }

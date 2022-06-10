@@ -1,5 +1,6 @@
 package com.deloitte.baseapp.modules.orgs.payloads.request;
 
+import com.deloitte.baseapp.commons.GenericRequestPayload;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,11 +8,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-public class OrgRequest {
+public class OrgUsrGroupRequest extends GenericRequestPayload {
     @NotBlank
-    private String orgName;
-
-    @NotBlank
-    private String orgCode;
-
+    private String orgId;
 }

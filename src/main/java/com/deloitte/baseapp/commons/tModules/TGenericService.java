@@ -1,5 +1,8 @@
-package com.deloitte.baseapp.commons;
+package com.deloitte.baseapp.commons.tModules;
 
+import com.deloitte.baseapp.commons.GenericSpecification;
+import com.deloitte.baseapp.commons.ObjectNotFoundException;
+import com.deloitte.baseapp.commons.PagingRequest;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
