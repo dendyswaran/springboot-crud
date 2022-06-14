@@ -21,6 +21,7 @@ import com.deloitte.baseapp.modules.tAccount.repositories.TOrgUserRepository;
 import com.deloitte.baseapp.modules.tAuthentication.payloads.request.SignUpOrgUserRequest;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
 import com.deloitte.baseapp.modules.teams.services.OrgTeamService;
+import com.deloitte.baseapp.modules.teams.services.OrgUsrTeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,6 +44,8 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authManager;
     private final MtStatusService mtStatusService;
+    private final OrgUsrTeamService orgUsrTeamService;
+    private final OrgService orgService;
 
 
     public OrgUserService(TGenericRepository<OrgUser, UUID> genericRepository,
@@ -52,7 +55,9 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
                           AuthenticationManager authManager,
                           OrgUsrGroupRepository orgUsrGroupRepository,
                           OrgUsrUsrGroupRepository orgUsrUsrGroupRepository,
-                          MtStatusService mtStatusService) {
+                          MtStatusService mtStatusService,
+                          OrgUsrTeamService orgUsrTeamService,
+                          OrgService orgService) {
         super(genericRepository);
         this.repository = repository;
         this.encoder = encoder;
@@ -61,6 +66,8 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
         this.orgUsrGroupRepository = orgUsrGroupRepository;
         this.orgUsrUsrGroupRepository = orgUsrUsrGroupRepository;
         this.mtStatusService = mtStatusService;
+        this.orgUsrTeamService  = orgUsrTeamService;
+        this.orgService = orgService;
     }
 
     public boolean checkExistByEmail(String email) {
@@ -79,7 +86,7 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
 
 
         OrgUser user = new OrgUser();
-        user.setName(payload.getUsername());
+        user.setName(payload.getName());
         user.setEmail(payload.getEmail());
         user.setPassword(encoder.encode(payload.getPassword()));
 
@@ -88,13 +95,19 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
         user.setMtStatus(mtStatusService.getByCode("01"));
 
         // check roles
-        String orgUserGroupId = payload.getOrgUserGroupId();
         Set<OrgUsrUsrGroup> orgUsrUsrGroups = new HashSet<>();
 
-        log.info("User has been saved: " + user);
+//        log.info("User has been saved: " + user);
         OrgUser userTemp = this.createUser(user);
 
-        if(orgUserGroupId != null && userTemp != null) {
+        try {
+            user.setOrg(payload.getOrgId() != null ?
+                    (orgService.checkExistById(UUID.fromString(payload.getOrgId())) ? orgService.get(UUID.fromString(payload.getOrgId())) : user.getOrg())
+                    : user.getOrg());
+
+
+        if(payload.getOrgUserGroupId() != null && userTemp != null) {
+            String orgUserGroupId = payload.getOrgUserGroupId();
             if(orgUsrGroupRepository.existsById(UUID.fromString(orgUserGroupId))) {
                 OrgUsrUsrGroup orgUsrUsrGroup = new OrgUsrUsrGroup();
                 orgUsrUsrGroup.setOrgUsrGroup(orgUsrGroupRepository.getById(UUID.fromString(orgUserGroupId)));
@@ -103,6 +116,19 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
                 user.setOrgUsrUsrGroups(orgUsrUsrGroups);
             }
         }
+
+        if(payload.getOrgTeamId() != null) {
+            Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams()!=null ? user.getOrgUsrTeams() : new HashSet<>();
+            if(orgUsrTeams.stream().noneMatch(orgUsrTeam -> orgUsrTeam.getOrgTeam().getId().equals(UUID.fromString(payload.getOrgTeamId())))) {
+                OrgUsrTeam orgUsrTeam = orgUsrTeamService.createUsrTeam(user.getId(), UUID.fromString(payload.getOrgTeamId()));
+                orgUsrTeams.add(orgUsrTeam);
+                user.setOrgUsrTeams(orgUsrTeams);
+            }
+        }
+        } catch (ObjectNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         return user;
     }
 
@@ -159,6 +185,7 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
                 user.getOrgUsrTeams()
                         .stream()
                         .map((orgUsrTeam) -> {
+                            log.info(String.valueOf(orgUsrTeam.getId()));
                             return OrgTeamService.getOrgTeamResponse(orgUsrTeam.getOrgTeam());
                         })
                         .collect(Collectors.toList())

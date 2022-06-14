@@ -9,11 +9,13 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class SignUpOrgUserRequest {
     @NotBlank
-    private String username;
+    private String name;
     @NotBlank
     private String password;
     @NotBlank
     private String email;
 
     private String orgUserGroupId;
+    private String orgTeamId;
+    private String orgId;
 }

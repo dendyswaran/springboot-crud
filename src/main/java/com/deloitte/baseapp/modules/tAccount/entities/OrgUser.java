@@ -38,7 +38,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
     private String password;
     private String email;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="org_id", referencedColumnName = "id")
     private Org org;
 

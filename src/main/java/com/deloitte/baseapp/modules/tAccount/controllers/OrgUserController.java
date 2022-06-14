@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -62,10 +63,12 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
 
             // set the orgUsrTeams
             if(payload.getOrgTeamId() != null) {
-                OrgUsrTeam orgUsrTeam = orgUsrTeamService.createUsrTeam(user.getId(), UUID.fromString(payload.getOrgTeamId()));
                 Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams();
-                orgUsrTeams.add(orgUsrTeam);
-                user.setOrgUsrTeams(orgUsrTeams);
+                if(orgUsrTeams.stream().noneMatch(orgUsrTeam -> orgUsrTeam.getOrgTeam().getId().equals(UUID.fromString(payload.getOrgTeamId())))) {
+                    OrgUsrTeam orgUsrTeam = orgUsrTeamService.createUsrTeam(user.getId(), UUID.fromString(payload.getOrgTeamId()));
+                    orgUsrTeams.add(orgUsrTeam);
+                    user.setOrgUsrTeams(orgUsrTeams);
+                }
             }
             this.update(user.getId(), user);
             return new MessageResponse<>("Successfully Update User");

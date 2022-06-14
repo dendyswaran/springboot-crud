@@ -33,8 +33,8 @@ public class Org extends AuditModel implements TGenericEntity<Org, UUID> {
     private String code;
     private String name;
 
-    @OneToOne(mappedBy = "org")
-    private OrgUser user;
+    @OneToMany(mappedBy = "org")
+    private Set<OrgUser> user;
 
     @OneToMany(mappedBy = "org")
     @ToString.Exclude
