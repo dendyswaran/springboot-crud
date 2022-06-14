@@ -56,4 +56,5 @@ public class OrgUsrGroup extends AuditModel implements TGenericEntity<OrgUsrGrou
         newInstance.update(this);
         return newInstance;
     }
+
 }

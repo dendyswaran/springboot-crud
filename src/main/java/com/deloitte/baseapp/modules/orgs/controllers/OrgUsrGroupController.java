@@ -26,11 +26,7 @@ public class OrgUsrGroupController extends TGenericController<OrgUsrGroup, UUID>
     @PostMapping("/create")
     public MessageResponse<?> createOegUsrGrp(@Valid @RequestBody OrgUsrGroupRequest payload) {
         OrgUsrGroup orgUsrGroup = service.createOrgUsrGroup(payload);
-        OrgUsrGroupResponse resp = new OrgUsrGroupResponse();
-        resp.setCode(orgUsrGroup.getCode());
-        resp.setOrgId(orgUsrGroup.getOrg().getId());
-        resp.setName(orgUsrGroup.getName());
-        resp.setId(orgUsrGroup.getId());
+        OrgUsrGroupResponse resp = OrgUsrGroupService.getOrgUsrGroupResponse(orgUsrGroup);
         return new MessageResponse<>(resp);
     }
 

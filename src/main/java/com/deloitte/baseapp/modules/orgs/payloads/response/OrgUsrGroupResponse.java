@@ -12,4 +12,6 @@ public class OrgUsrGroupResponse {
     private String name;
     private String code;
     private UUID orgId;
+    private String orgName;
+    private String orgCode;
 }

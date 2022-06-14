@@ -46,4 +46,5 @@ public class OrgTeam extends AuditModel implements TGenericEntity<OrgTeam, UUID>
         newInstance.update(this);
         return newInstance;
     }
+
 }

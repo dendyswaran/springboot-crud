@@ -1,6 +1,7 @@
 package com.deloitte.baseapp.modules.manageUser.controllers;
 
 import com.deloitte.baseapp.commons.*;
+import com.deloitte.baseapp.configs.security.services.OrgUserDetailsImpl;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
 import com.deloitte.baseapp.modules.account.services.UserService;
@@ -35,30 +36,30 @@ public class ManageUserController  extends GenericController<User>{
 
     @GetMapping("/user-list")
     public MessageResponse<?> getUserList() {
-        final UserDetailsImpl userPrincipal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final OrgUserDetailsImpl userPrincipal = (OrgUserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<UserResponse> users = manageUserService.getAllUser();
         return new MessageResponse<>(users);
     }
 
     @PutMapping("/edit/{id}")
-    public MessageResponse updateUser(@PathVariable("id") Long id, @RequestBody UserResponse values) {
+    public MessageResponse<?> updateUser(@PathVariable("id") Long id, @RequestBody UserResponse values) {
         try {
             User updated = userService.get(id);
             updated.setUsername(values.getUsername());
             updated.setEmail(values.getEmail());
-            return new MessageResponse(userService.update(id, updated));
+            return new MessageResponse<>(userService.update(id, updated));
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public MessageResponse deleteUser(@PathVariable Long id) {
+    public MessageResponse<?> deleteUser(@PathVariable Long id) {
         final UserDetailsImpl userPrincipal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(!Objects.equals(userPrincipal.getId(), id)) {
             try{
                 userService.delete(id);
-                return new MessageResponse(true);
+                return new MessageResponse<>(true);
             } catch (ObjectNotFoundException e) {
                 return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
             }
@@ -67,8 +68,8 @@ public class ManageUserController  extends GenericController<User>{
     }
 
     @PostMapping("/datatable/users")
-    public MessageResponse getDatatableManageUser(@RequestBody PagingRequest pagingRequest) {
-        final UserDetailsImpl userPrincipal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public MessageResponse<?> getDatatableManageUser(@RequestBody PagingRequest pagingRequest) {
+        final OrgUserDetailsImpl userPrincipal = (OrgUserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
             Page<User> page = userService.getPage(pagingRequest);
             List<User> filteredList = page.stream()

@@ -5,6 +5,7 @@ import com.deloitte.baseapp.commons.tModules.TGenericEntity;
 import com.deloitte.baseapp.modules.orgs.entites.Org;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
 import com.deloitte.baseapp.modules.MTStatus.entities.MtStatus;
+import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +43,12 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
     private Org org;
 
     @OneToMany(mappedBy = "orgUser")
+    @ToString.Exclude
     private Set<OrgUsrUsrGroup> orgUsrUsrGroups;
+
+    @OneToMany(mappedBy = "orgUser")
+    @ToString.Exclude
+    private Set<OrgUsrTeam> orgUsrTeams;
 
 
     @ManyToOne

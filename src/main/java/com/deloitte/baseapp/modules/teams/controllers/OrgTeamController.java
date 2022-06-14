@@ -29,12 +29,17 @@ public class OrgTeamController extends TGenericController<OrgTeam, UUID> {
         return new MessageResponse<>(service.createOrgTeam(payload));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/edit/{id}")
     public MessageResponse<?> editOrgTeam(@PathVariable("id") String orgTeamId, OrgTeamUpdateRequest payload) {
         try {
             return new MessageResponse<>(service.updateOrgTeam(UUID.fromString(orgTeamId), payload));
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }
+    }
+
+    @GetMapping("/list")
+    public MessageResponse<?> getTeamList() {
+        return new MessageResponse<>(service.getOrgList());
     }
 }

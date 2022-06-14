@@ -1,5 +1,6 @@
 package com.deloitte.baseapp.modules.tAccount.services;
 
+import com.deloitte.baseapp.commons.ObjectNotFoundException;
 import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.commons.tModules.TGenericService;
 import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
@@ -12,9 +13,14 @@ import com.deloitte.baseapp.modules.authentication.payloads.SignInOrgUserRequest
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrGroupRepository;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrUsrGroupRepository;
+import com.deloitte.baseapp.modules.orgs.services.OrgService;
+import com.deloitte.baseapp.modules.orgs.services.OrgUsrGroupService;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
+import com.deloitte.baseapp.modules.tAccount.payloads.response.OrgUserResponse;
 import com.deloitte.baseapp.modules.tAccount.repositories.TOrgUserRepository;
 import com.deloitte.baseapp.modules.tAuthentication.payloads.request.SignUpOrgUserRequest;
+import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
+import com.deloitte.baseapp.modules.teams.services.OrgTeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,10 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -123,5 +126,45 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
                 user.getName(),
                 user.getEmail(),
                 orgUsrGroupIds);
+    }
+
+    //TODO: Response need to be updated so that instead of return a null list, no parameter will be return
+    // This can be achieve by using response payload, so that a  list of certain attribute would be returned
+    public List<OrgUserResponse> getAllUsers () {
+        List<OrgUser> users = repository.findAll();
+        return users.stream()
+                .map(OrgUserService::convertOrgUserToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public OrgUserResponse getUser(UUID id) throws ObjectNotFoundException {
+        OrgUser user = this.get(id);
+        return convertOrgUserToResponse(user);
+    }
+
+    public static OrgUserResponse convertOrgUserToResponse (OrgUser user) {
+        OrgUserResponse resp = new OrgUserResponse();
+        resp.setId(user.getId());
+        resp.setName(user.getName());
+        resp.setCode(user.getCode());
+        resp.setEmail(user.getEmail());
+        resp.setOrgUsrGroups(
+                user.getOrgUsrUsrGroups().stream()
+                        .map((orgUsrUsrGroup) -> {
+                            return OrgUsrGroupService.getOrgUsrGroupResponse(orgUsrUsrGroup.getOrgUsrGroup());
+                        })
+                        .collect(Collectors.toList())
+        );
+        resp.setOrgTeams(
+                user.getOrgUsrTeams()
+                        .stream()
+                        .map((orgUsrTeam) -> {
+                            return OrgTeamService.getOrgTeamResponse(orgUsrTeam.getOrgTeam());
+                        })
+                        .collect(Collectors.toList())
+        );
+
+        resp.setOrg(OrgService.getOrgResponse(user.getOrg()));
+        return resp;
     }
 }

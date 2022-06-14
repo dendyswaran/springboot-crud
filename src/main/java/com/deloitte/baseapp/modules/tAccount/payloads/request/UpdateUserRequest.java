@@ -15,4 +15,5 @@ public class UpdateUserRequest {
     private String orgId;
     private String orgUsrGroupId;
     private String mtStatusId;
+    private String orgTeamId;
 }

@@ -10,7 +10,9 @@ import com.deloitte.baseapp.modules.orgs.services.OrgService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -40,5 +42,12 @@ public class OrgController extends TGenericController<Org, UUID> {
         }
     }
 
+    @GetMapping("/list")
+    public MessageResponse<?> getOrgList() {
+        List<Org> orgList = service.getAll();
+        return new MessageResponse<>(orgList.stream()
+                .map(OrgService::getOrgResponse)
+                .collect(Collectors.toList()));
+    }
 
 }
