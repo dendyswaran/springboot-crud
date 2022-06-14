@@ -3,6 +3,7 @@ package com.deloitte.baseapp.modules.orgs.entites;
 import com.deloitte.baseapp.commons.AuditModel;
 import com.deloitte.baseapp.commons.tModules.TGenericEntity;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -22,10 +23,12 @@ public class OrgUsrUsrGroup extends AuditModel implements TGenericEntity<OrgUsrU
 
     @ManyToOne
     @JoinColumn(name = "org_usr_id")
+    @JsonManagedReference
     private OrgUser orgUser;
 
     @ManyToOne
     @JoinColumn(name = "org_usrgrp_id")
+    @JsonManagedReference
     private OrgUsrGroup orgUsrGroup;
 
 

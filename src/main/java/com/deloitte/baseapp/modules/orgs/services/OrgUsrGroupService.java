@@ -30,19 +30,4 @@ public class OrgUsrGroupService extends TGenericService<OrgUsrGroup, UUID> {
         orgUsrGroup.setCode(payload.getCode());
         return repository.save(orgUsrGroup);
     }
-
-    public static OrgUsrGroupResponse getOrgUsrGroupResponse(OrgUsrGroup source) {
-        if(source == null) {
-            return null;
-        }
-        OrgUsrGroupResponse resp = new OrgUsrGroupResponse();
-        resp.setCode(source.getCode());
-        resp.setOrgId(source.getOrg().getId());
-        resp.setName(source.getName());
-        resp.setId(source.getId());
-        resp.setOrgName(source.getOrg().getName());
-        resp.setOrgCode(source.getOrg().getCode());
-        return resp;
-    }
-
 }

@@ -1,4 +1,4 @@
-package com.deloitte.baseapp.commons;
+package com.deloitte.baseapp.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

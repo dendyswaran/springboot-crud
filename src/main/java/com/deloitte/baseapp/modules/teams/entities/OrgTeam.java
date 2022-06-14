@@ -3,6 +3,8 @@ package com.deloitte.baseapp.modules.teams.entities;
 import com.deloitte.baseapp.commons.AuditModel;
 import com.deloitte.baseapp.commons.tModules.TGenericEntity;
 import com.deloitte.baseapp.modules.orgs.entites.Org;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,9 +31,11 @@ public class OrgTeam extends AuditModel implements TGenericEntity<OrgTeam, UUID>
 
     @ManyToOne
     @JoinColumn(name="org_id")
+    @JsonBackReference
     private Org org;
 
     @OneToMany(mappedBy = "orgTeam")
+    @JsonBackReference
     private Set<OrgUsrTeam> orgUsrTeams;
 
     @Override

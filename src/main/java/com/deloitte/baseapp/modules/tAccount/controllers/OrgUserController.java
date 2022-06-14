@@ -5,25 +5,20 @@ import com.deloitte.baseapp.commons.ObjectNotFoundException;
 import com.deloitte.baseapp.commons.tModules.TGenericController;
 import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.configs.security.services.OrgUserDetailsImpl;
-import com.deloitte.baseapp.modules.manageUser.payloads.UserResponse;
 import com.deloitte.baseapp.modules.orgs.services.OrgService;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
 import com.deloitte.baseapp.modules.tAccount.payloads.request.UpdateUserRequest;
-import com.deloitte.baseapp.modules.tAccount.payloads.response.OrgUserResponse;
 import com.deloitte.baseapp.modules.tAccount.services.OrgUserService;
 import com.deloitte.baseapp.modules.MTStatus.services.MtStatusService;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
-import com.deloitte.baseapp.modules.teams.payloads.response.OrgUsrTeamResponse;
 import com.deloitte.baseapp.modules.teams.services.OrgUsrTeamService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -81,7 +76,7 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
     @GetMapping("/user-list")
     public MessageResponse<?> getUserList() {
         final OrgUserDetailsImpl userPrincipal = (OrgUserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<OrgUserResponse> users = service.getAllUsers();
+        List<OrgUser> users = service.getAllUsers();
         return new MessageResponse<>(users);
     }
 

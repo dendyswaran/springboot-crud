@@ -45,9 +45,7 @@ public class OrgController extends TGenericController<Org, UUID> {
     @GetMapping("/list")
     public MessageResponse<?> getOrgList() {
         List<Org> orgList = service.getAll();
-        return new MessageResponse<>(orgList.stream()
-                .map(OrgService::getOrgResponse)
-                .collect(Collectors.toList()));
+        return new MessageResponse<>(orgList);
     }
 
 }

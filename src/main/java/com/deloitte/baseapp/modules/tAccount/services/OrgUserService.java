@@ -14,13 +14,10 @@ import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrGroupRepository;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrUsrGroupRepository;
 import com.deloitte.baseapp.modules.orgs.services.OrgService;
-import com.deloitte.baseapp.modules.orgs.services.OrgUsrGroupService;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
-import com.deloitte.baseapp.modules.tAccount.payloads.response.OrgUserResponse;
 import com.deloitte.baseapp.modules.tAccount.repositories.TOrgUserRepository;
 import com.deloitte.baseapp.modules.tAuthentication.payloads.request.SignUpOrgUserRequest;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
-import com.deloitte.baseapp.modules.teams.services.OrgTeamService;
 import com.deloitte.baseapp.modules.teams.services.OrgUsrTeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -156,42 +153,12 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
 
     //TODO: Response need to be updated so that instead of return a null list, no parameter will be return
     // This can be achieve by using response payload, so that a  list of certain attribute would be returned
-    public List<OrgUserResponse> getAllUsers () {
-        List<OrgUser> users = repository.findAll();
-        return users.stream()
-                .map(OrgUserService::convertOrgUserToResponse)
-                .collect(Collectors.toList());
+    public List<OrgUser> getAllUsers () {
+        return repository.findAll();
     }
 
-    public OrgUserResponse getUser(UUID id) throws ObjectNotFoundException {
-        OrgUser user = this.get(id);
-        return convertOrgUserToResponse(user);
+    public OrgUser getUser(UUID id) throws ObjectNotFoundException {
+        return this.get(id);
     }
 
-    public static OrgUserResponse convertOrgUserToResponse (OrgUser user) {
-        OrgUserResponse resp = new OrgUserResponse();
-        resp.setId(user.getId());
-        resp.setName(user.getName());
-        resp.setCode(user.getCode());
-        resp.setEmail(user.getEmail());
-        resp.setOrgUsrGroups(
-                user.getOrgUsrUsrGroups().stream()
-                        .map((orgUsrUsrGroup) -> {
-                            return OrgUsrGroupService.getOrgUsrGroupResponse(orgUsrUsrGroup.getOrgUsrGroup());
-                        })
-                        .collect(Collectors.toList())
-        );
-        resp.setOrgTeams(
-                user.getOrgUsrTeams()
-                        .stream()
-                        .map((orgUsrTeam) -> {
-                            log.info(String.valueOf(orgUsrTeam.getId()));
-                            return OrgTeamService.getOrgTeamResponse(orgUsrTeam.getOrgTeam());
-                        })
-                        .collect(Collectors.toList())
-        );
-
-        resp.setOrg(OrgService.getOrgResponse(user.getOrg()));
-        return resp;
-    }
 }

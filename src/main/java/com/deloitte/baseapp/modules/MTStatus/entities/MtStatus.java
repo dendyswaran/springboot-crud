@@ -3,6 +3,7 @@ package com.deloitte.baseapp.modules.MTStatus.entities;
 import com.deloitte.baseapp.commons.AuditModel;
 import com.deloitte.baseapp.commons.tModules.TGenericEntity;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,6 +29,7 @@ public class MtStatus extends AuditModel implements TGenericEntity<MtStatus, UUI
     private String dscp;
 
     @OneToMany(mappedBy = "mtStatus")
+    @JsonBackReference
     private Set<OrgUser> orgUsers;
 
     @Override

@@ -7,6 +7,7 @@ import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
 import com.deloitte.baseapp.modules.MTStatus.entities.MtStatus;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -40,6 +41,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="org_id", referencedColumnName = "id")
+    @JsonIgnoreProperties
     private Org org;
 
     @OneToMany(mappedBy = "orgUser")
