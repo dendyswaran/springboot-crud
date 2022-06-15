@@ -8,6 +8,7 @@ import com.deloitte.baseapp.modules.MTStatus.entities.MtStatus;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -48,6 +49,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
     @ToString.Exclude
     private Set<OrgUsrUsrGroup> orgUsrUsrGroups;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "orgUser")
     @ToString.Exclude
     private Set<OrgUsrTeam> orgUsrTeams;
@@ -55,6 +57,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
 
     @ManyToOne
     @JoinColumn(name = "mt_status_id")
+    @JsonManagedReference
     private MtStatus mtStatus;
 
     @Override

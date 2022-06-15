@@ -28,5 +28,4 @@ public class OrgUsrGroupController extends TGenericController<OrgUsrGroup, UUID>
         return new MessageResponse<>(orgUsrGroup);
     }
 
-
 }
