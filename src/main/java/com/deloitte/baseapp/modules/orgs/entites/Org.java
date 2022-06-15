@@ -38,6 +38,7 @@ public class Org extends AuditModel implements TGenericEntity<Org, UUID> {
 
     @OneToMany(mappedBy = "org")
     @JsonBackReference
+    @ToString.Exclude
     private Set<OrgUser> user;
 
     @OneToMany(mappedBy = "org")

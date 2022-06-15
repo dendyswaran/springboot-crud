@@ -1,4 +1,4 @@
-package com.deloitte.baseapp.modules.orgs.payloads.request;
+package com.deloitte.baseapp.modules.orgs.payloads;
 
 import com.deloitte.baseapp.commons.GenericRequestPayload;
 import lombok.Getter;

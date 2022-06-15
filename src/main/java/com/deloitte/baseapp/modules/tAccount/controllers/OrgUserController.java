@@ -7,18 +7,17 @@ import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.configs.security.services.OrgUserDetailsImpl;
 import com.deloitte.baseapp.modules.orgs.services.OrgService;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
-import com.deloitte.baseapp.modules.tAccount.payloads.request.UpdateUserRequest;
+import com.deloitte.baseapp.modules.tAccount.payloads.UpdateUserRequest;
 import com.deloitte.baseapp.modules.tAccount.services.OrgUserService;
 import com.deloitte.baseapp.modules.MTStatus.services.MtStatusService;
-import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
 import com.deloitte.baseapp.modules.teams.services.OrgUsrTeamService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -58,13 +57,12 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
 
             // set the orgUsrTeams
             if(payload.getOrgTeamId() != null) {
-                Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams();
-                if(orgUsrTeams.stream().noneMatch(orgUsrTeam -> orgUsrTeam.getOrgTeam().getId().equals(UUID.fromString(payload.getOrgTeamId())))) {
-                    OrgUsrTeam orgUsrTeam = orgUsrTeamService.createUsrTeam(user.getId(), UUID.fromString(payload.getOrgTeamId()));
-                    orgUsrTeams.add(orgUsrTeam);
-                    user.setOrgUsrTeams(orgUsrTeams);
-                }
+                user = service.setUserToHasOneOrgTeamByUpdating(user,payload.getOrgTeamId());
             }
+            if(payload.getOrgUsrGroupId() != null) {
+                user = service.setUserToHasOneOrgUsrUsrGrpByUpdating(user, payload.getOrgUsrGroupId());
+            }
+
             this.update(user.getId(), user);
             return new MessageResponse<>("Successfully Update User");
         } catch (ObjectNotFoundException e) {
@@ -77,6 +75,9 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
     public MessageResponse<?> getUserList() {
         final OrgUserDetailsImpl userPrincipal = (OrgUserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<OrgUser> users = service.getAllUsers();
+        users = users.stream()
+                .filter(user -> !user.getId().equals(userPrincipal.getId()))
+                .collect(Collectors.toList());
         return new MessageResponse<>(users);
     }
 

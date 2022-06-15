@@ -3,8 +3,7 @@ package com.deloitte.baseapp.modules.orgs.services;
 import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.commons.tModules.TGenericService;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrGroup;
-import com.deloitte.baseapp.modules.orgs.payloads.request.OrgUsrGroupRequest;
-import com.deloitte.baseapp.modules.orgs.payloads.response.OrgUsrGroupResponse;
+import com.deloitte.baseapp.modules.orgs.payloads.OrgUsrGroupRequest;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgRepository;
 import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrGroupRepository;
 import org.springframework.stereotype.Service;
@@ -30,4 +29,9 @@ public class OrgUsrGroupService extends TGenericService<OrgUsrGroup, UUID> {
         orgUsrGroup.setCode(payload.getCode());
         return repository.save(orgUsrGroup);
     }
+
+    public boolean existsById(UUID id) {
+        return repository.existsById(id);
+    }
+
 }

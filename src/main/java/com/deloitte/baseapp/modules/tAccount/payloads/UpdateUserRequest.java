@@ -1,4 +1,4 @@
-package com.deloitte.baseapp.modules.tAccount.payloads.request;
+package com.deloitte.baseapp.modules.tAccount.payloads;
 
 import lombok.Getter;
 import lombok.Setter;

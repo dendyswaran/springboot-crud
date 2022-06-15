@@ -12,4 +12,5 @@ public interface TOrgUserRepository extends TGenericRepository<OrgUser, UUID> {
 
     public Optional<OrgUser> findByName(String username);
     public boolean existsByEmail(String email);
+    public boolean existsByName(String name);
 }

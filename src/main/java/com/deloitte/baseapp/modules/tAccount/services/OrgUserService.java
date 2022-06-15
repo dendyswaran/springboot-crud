@@ -6,18 +6,20 @@ import com.deloitte.baseapp.commons.tModules.TGenericService;
 import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.MTStatus.services.MtStatusService;
-import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.SignInOrgUserRequest;
+import com.deloitte.baseapp.modules.orgs.entites.OrgUsrGroup;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
-import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrGroupRepository;
-import com.deloitte.baseapp.modules.orgs.repositories.OrgUsrUsrGroupRepository;
 import com.deloitte.baseapp.modules.orgs.services.OrgService;
+import com.deloitte.baseapp.modules.orgs.services.OrgUsrGroupService;
+import com.deloitte.baseapp.modules.orgs.services.OrgUsrUsrGroupService;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
 import com.deloitte.baseapp.modules.tAccount.repositories.TOrgUserRepository;
 import com.deloitte.baseapp.modules.tAuthentication.payloads.request.SignUpOrgUserRequest;
+import com.deloitte.baseapp.modules.teams.entities.OrgTeam;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
+import com.deloitte.baseapp.modules.teams.services.OrgTeamService;
 import com.deloitte.baseapp.modules.teams.services.OrgUsrTeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,14 +37,15 @@ import java.util.stream.Collectors;
 public class OrgUserService extends TGenericService<OrgUser, UUID> {
 
     private final TOrgUserRepository repository;
-    private final OrgUsrGroupRepository orgUsrGroupRepository;
+    private final OrgUsrGroupService orgUsrGroupService;
     private final PasswordEncoder encoder;
-    private final OrgUsrUsrGroupRepository orgUsrUsrGroupRepository;
+    private final OrgUsrUsrGroupService orgUsrUsrGroupService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authManager;
     private final MtStatusService mtStatusService;
     private final OrgUsrTeamService orgUsrTeamService;
     private final OrgService orgService;
+    private final OrgTeamService orgTeamService;
 
 
     public OrgUserService(TGenericRepository<OrgUser, UUID> genericRepository,
@@ -50,37 +53,39 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
                           PasswordEncoder encoder,
                           JwtUtils jwtUtils,
                           AuthenticationManager authManager,
-                          OrgUsrGroupRepository orgUsrGroupRepository,
-                          OrgUsrUsrGroupRepository orgUsrUsrGroupRepository,
+                          OrgUsrGroupService orgUsrGroupService,
+                          OrgUsrUsrGroupService orgUsrUsrGroupService,
                           MtStatusService mtStatusService,
                           OrgUsrTeamService orgUsrTeamService,
-                          OrgService orgService) {
+                          OrgService orgService,
+                          OrgTeamService orgTeamService) {
         super(genericRepository);
         this.repository = repository;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.authManager = authManager;
-        this.orgUsrGroupRepository = orgUsrGroupRepository;
-        this.orgUsrUsrGroupRepository = orgUsrUsrGroupRepository;
+        this.orgUsrGroupService = orgUsrGroupService;
+        this.orgUsrUsrGroupService = orgUsrUsrGroupService;
         this.mtStatusService = mtStatusService;
         this.orgUsrTeamService  = orgUsrTeamService;
         this.orgService = orgService;
+        this.orgTeamService = orgTeamService;
     }
 
     public boolean checkExistByEmail(String email) {
         return repository.existsByEmail(email);
     }
+    public boolean checkExistByName(String name) {return repository.existsByName(name); }
 
     public OrgUser createUser(OrgUser user) {
         return this.repository.save(user);
     }
 
-    public OrgUser tSignup(final SignUpOrgUserRequest payload) throws EmailHasBeenUsedException, RoleNotFoundException {
-        final boolean exists = this.checkExistByEmail(payload.getEmail());
+    public OrgUser tSignup(final SignUpOrgUserRequest payload) throws Exception {
+        final boolean existsByEmail = this.checkExistByEmail(payload.getEmail());
 
-        if (exists)
+        if (existsByEmail || checkExistByName(payload.getName()))
             throw new EmailHasBeenUsedException();
-
 
         OrgUser user = new OrgUser();
         user.setName(payload.getName());
@@ -96,37 +101,32 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
 
 //        log.info("User has been saved: " + user);
         OrgUser userTemp = this.createUser(user);
-
-        try {
-            user.setOrg(payload.getOrgId() != null ?
-                    (orgService.checkExistById(UUID.fromString(payload.getOrgId())) ? orgService.get(UUID.fromString(payload.getOrgId())) : user.getOrg())
+            // set org for the users
+            user.setOrg(payload.getOrgId() != null
+                    ?(orgService.checkExistById(UUID.fromString(payload.getOrgId()))
+                            ? orgService.get(UUID.fromString(payload.getOrgId()))
+                            : user.getOrg())
                     : user.getOrg());
 
 
-        if(payload.getOrgUserGroupId() != null && userTemp != null) {
-            String orgUserGroupId = payload.getOrgUserGroupId();
-            if(orgUsrGroupRepository.existsById(UUID.fromString(orgUserGroupId))) {
-                OrgUsrUsrGroup orgUsrUsrGroup = new OrgUsrUsrGroup();
-                orgUsrUsrGroup.setOrgUsrGroup(orgUsrGroupRepository.getById(UUID.fromString(orgUserGroupId)));
-                orgUsrUsrGroup.setOrgUser(userTemp);
-                orgUsrUsrGroups.add(orgUsrUsrGroupRepository.save(orgUsrUsrGroup));
-                user.setOrgUsrUsrGroups(orgUsrUsrGroups);
-            }
-        }
 
-        if(payload.getOrgTeamId() != null) {
-            Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams()!=null ? user.getOrgUsrTeams() : new HashSet<>();
-            if(orgUsrTeams.stream().noneMatch(orgUsrTeam -> orgUsrTeam.getOrgTeam().getId().equals(UUID.fromString(payload.getOrgTeamId())))) {
-                OrgUsrTeam orgUsrTeam = orgUsrTeamService.createUsrTeam(user.getId(), UUID.fromString(payload.getOrgTeamId()));
-                orgUsrTeams.add(orgUsrTeam);
-                user.setOrgUsrTeams(orgUsrTeams);
+            if(payload.getOrgUserGroupId() != null && userTemp != null) {
+                String orgUserGroupId = payload.getOrgUserGroupId();
+                if(orgUsrGroupService.existsById(UUID.fromString(orgUserGroupId))) {
+                    OrgUsrUsrGroup orgUsrUsrGroup = new OrgUsrUsrGroup();
+                    orgUsrUsrGroup.setOrgUsrGroup(orgUsrGroupService.get(UUID.fromString(orgUserGroupId)));
+                    orgUsrUsrGroup.setOrgUser(userTemp);
+                    orgUsrUsrGroups.add(orgUsrUsrGroupService.create(orgUsrUsrGroup));
+                    user.setOrgUsrUsrGroups(orgUsrUsrGroups);
+                }
             }
-        }
-        } catch (ObjectNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
-        return user;
+            if(payload.getOrgTeamId() != null && userTemp != null) {
+                user = setUserToHasOneOrgTeamByUpdating(userTemp, payload.getOrgTeamId());
+            }
+
+        assert userTemp != null;
+        return update(userTemp.getId(), user);
     }
 
 
@@ -151,8 +151,6 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
                 orgUsrGroupIds);
     }
 
-    //TODO: Response need to be updated so that instead of return a null list, no parameter will be return
-    // This can be achieve by using response payload, so that a  list of certain attribute would be returned
     public List<OrgUser> getAllUsers () {
         return repository.findAll();
     }
@@ -161,4 +159,83 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
         return this.get(id);
     }
 
+
+    public OrgUser setUserToHasMultipleOrgTeam (OrgUser user, String orgTeamId) throws ObjectNotFoundException {
+        Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams()!=null ? user.getOrgUsrTeams() : new HashSet<>();
+        if(orgUsrTeams.stream().noneMatch(orgUsrTeam -> orgUsrTeam.getOrgTeam().getId().equals(UUID.fromString(orgTeamId)))) {
+            OrgUsrTeam orgUsrTeam = orgUsrTeamService.createUsrTeam(user, UUID.fromString(orgTeamId));
+            orgUsrTeams.add(orgUsrTeam);
+        }
+        user.setOrgUsrTeams(orgUsrTeams);
+        return user;
+    }
+
+    public OrgUser setUserToHasOneOrgTeamByUpdating(OrgUser user, String orgTeamId) throws ObjectNotFoundException {
+        Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams() != null ? user.getOrgUsrTeams() : new HashSet<>();
+        if(!orgUsrTeams.isEmpty()) {
+            // update the row in the org_usr_team
+            OrgTeam orgTeam = orgTeamService.get(UUID.fromString(orgTeamId));
+            OrgUsrTeam orgUsrTeam = orgUsrTeams.iterator().next();
+            orgUsrTeam.setOrgTeam(orgTeam);
+            orgUsrTeamService.update(orgUsrTeam.getId(), orgUsrTeam);
+            return get(user.getId());
+        }else {
+            orgUsrTeams.add(orgUsrTeamService.createUsrTeam(user, UUID.fromString(orgTeamId)));
+            user.setOrgUsrTeams(orgUsrTeams);
+        }
+        return user;
+    }
+
+    public OrgUser setUserToHasOneOrgTeamByDeleteAndSave(OrgUser user, String orgTeamId) throws ObjectNotFoundException {
+        Set<OrgUsrTeam> orgUsrTeams = user.getOrgUsrTeams() != null ? user.getOrgUsrTeams() : new HashSet<>();
+        if(!orgUsrTeams.isEmpty()) {
+            for (OrgUsrTeam orgUsrTeam : orgUsrTeams) {
+                orgUsrTeamService.delete(orgUsrTeam.getId());
+            }
+            orgUsrTeams.clear();
+        }
+        orgUsrTeams.add(orgUsrTeamService.createUsrTeam(user, UUID.fromString(orgTeamId)));
+        user.setOrgUsrTeams(orgUsrTeams);
+        return user;
+    }
+
+    public OrgUser setUserToHasOneOrgUsrUsrGrpByUpdating(OrgUser user, String orgUsrGroupId) throws ObjectNotFoundException {
+        Set<OrgUsrUsrGroup> orgUsrUsrGroups = user.getOrgUsrUsrGroups() != null ? user.getOrgUsrUsrGroups() : new HashSet<>();
+        if(!orgUsrUsrGroups.isEmpty()) {
+            // update row in t_org_usr_usr_grp
+            OrgUsrGroup orgUsrGroup = orgUsrGroupService.get(UUID.fromString(orgUsrGroupId));
+            OrgUsrUsrGroup orgUsrUsrGroup = orgUsrUsrGroups.iterator().next();
+            orgUsrUsrGroup.setOrgUsrGroup(orgUsrGroup);
+            orgUsrUsrGroupService.update(orgUsrUsrGroup.getId(), orgUsrUsrGroup);
+            return get(user.getId());
+        }else {
+            orgUsrUsrGroups.add(orgUsrUsrGroupService.createOrgUsrUsrGroup(user, UUID.fromString(orgUsrGroupId)));
+            user.setOrgUsrUsrGroups(orgUsrUsrGroups);
+            return user;
+        }
+
+    }
+
+    public OrgUser setUserToHasOneOrgUsrUsrGrpByDeleteAndSave(OrgUser user, String orgUsrGroupId) throws ObjectNotFoundException {
+        Set<OrgUsrUsrGroup> orgUsrUsrGroups = user.getOrgUsrUsrGroups() != null  ? user.getOrgUsrUsrGroups() : new HashSet<>();
+        if(!orgUsrUsrGroups.isEmpty()) {
+            for(OrgUsrUsrGroup orgUsrUsrGroup : orgUsrUsrGroups) {
+                orgUsrUsrGroupService.delete(orgUsrUsrGroup.getId());
+            }
+            orgUsrUsrGroups.clear();
+        }
+        orgUsrUsrGroups.add(orgUsrUsrGroupService.createOrgUsrUsrGroup(user,UUID.fromString(orgUsrGroupId)));
+        user.setOrgUsrUsrGroups(orgUsrUsrGroups);
+        return user;
+    }
+
+    public OrgUser setUserUserToHasMultipleOrgUsrUsrGroup(OrgUser user, String orgUsrGroupId) throws ObjectNotFoundException {
+        Set<OrgUsrUsrGroup> orgUsrUsrGroups = user.getOrgUsrUsrGroups()!=null ? user.getOrgUsrUsrGroups() : new HashSet<>();
+        if(orgUsrUsrGroups.stream().noneMatch(orgUsrUsrGroup -> orgUsrUsrGroup.getOrgUsrGroup().getId().equals(UUID.fromString(orgUsrGroupId)))) {
+            OrgUsrUsrGroup orgUsrTeam = orgUsrUsrGroupService.createOrgUsrUsrGroup(user, UUID.fromString(orgUsrGroupId));
+            orgUsrUsrGroups.add(orgUsrTeam);
+        }
+        user.setOrgUsrUsrGroups(orgUsrUsrGroups);
+        return user;
+    }
 }

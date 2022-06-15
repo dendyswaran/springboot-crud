@@ -4,8 +4,7 @@ import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.commons.tModules.TGenericController;
 import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrGroup;
-import com.deloitte.baseapp.modules.orgs.payloads.request.OrgUsrGroupRequest;
-import com.deloitte.baseapp.modules.orgs.payloads.response.OrgUsrGroupResponse;
+import com.deloitte.baseapp.modules.orgs.payloads.OrgUsrGroupRequest;
 import com.deloitte.baseapp.modules.orgs.services.OrgUsrGroupService;
 import org.springframework.web.bind.annotation.*;
 

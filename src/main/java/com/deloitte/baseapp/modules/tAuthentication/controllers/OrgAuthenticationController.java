@@ -1,6 +1,7 @@
 package com.deloitte.baseapp.modules.tAuthentication.controllers;
 
 import com.deloitte.baseapp.commons.MessageResponse;
+import com.deloitte.baseapp.commons.ObjectNotFoundException;
 import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
@@ -35,6 +36,10 @@ public class OrgAuthenticationController {
             return new MessageResponse<>("New User Successfully Registered");
         } catch (RoleNotFoundException | RuntimeException | EmailHasBeenUsedException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
+        } catch (ObjectNotFoundException e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
