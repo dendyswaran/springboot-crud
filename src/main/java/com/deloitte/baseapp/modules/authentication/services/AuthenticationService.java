@@ -5,8 +5,12 @@ import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
+import com.deloitte.baseapp.modules.account.entities.UserToken;
+import com.deloitte.baseapp.modules.account.entities.UserTokenRedis;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
+import com.deloitte.baseapp.modules.account.repositories.UserTokenRedisRepository;
+import com.deloitte.baseapp.modules.account.repositories.UserTokenRepository;
 import com.deloitte.baseapp.modules.account.services.RoleService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
@@ -49,6 +53,12 @@ public class AuthenticationService {
 
     @Autowired
     NotificationEmailService notificationEmailService;
+
+    @Autowired
+    UserTokenRepository userTokenRepository;
+
+    @Autowired
+    UserTokenRedisRepository userTokenRedisRepository;
 
     /**
      * Registers a user by using email and password
@@ -100,6 +110,9 @@ public class AuthenticationService {
         final String accessToken = jwtUtils.generateJwtToken(authentication);
         final User user = optionalUser.get();
 
+        //STORE VALID USER TOKEN
+        storeValidToken(user.getId(), accessToken);
+
         return new JwtResponse(accessToken,
                 user.getId(),
                 user.getUsername(),
@@ -124,5 +137,22 @@ public class AuthenticationService {
 
             notificationEmailService.sendEmail(emailRequest);
         }
+    }
+
+    private void storeValidToken(Long userId, String accessToken) {
+        //STORE INTO DB
+//        UserToken userToken = new UserToken();
+//        userToken.setUser_id(userId);
+//        userToken.setToken(accessToken);
+//
+//        userTokenRepository.save(userToken);
+
+        //STORE INTO REDIS
+        UserTokenRedis userTokenRedis = new UserTokenRedis();
+        userTokenRedis.setUserId(userId);
+        userTokenRedis.setToken(accessToken);
+
+        userTokenRedisRepository.save(userTokenRedis);
+
     }
 }
