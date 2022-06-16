@@ -7,7 +7,7 @@ import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.configs.security.services.OrgUserDetailsImpl;
 import com.deloitte.baseapp.modules.orgs.services.OrgService;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
-import com.deloitte.baseapp.modules.tAccount.payloads.UpdateUserRequest;
+import com.deloitte.baseapp.modules.tAccount.payloads.UpdateOrgUserRequest;
 import com.deloitte.baseapp.modules.tAccount.services.OrgUserService;
 import com.deloitte.baseapp.modules.MTStatus.services.MtStatusService;
 import com.deloitte.baseapp.modules.teams.services.OrgUsrTeamService;
@@ -42,7 +42,7 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
 
     // TODO: edit team, edit usrUsrGrp
     @PutMapping("/edit/{id}")
-    public MessageResponse<?> updateUser(@PathVariable("id") String id,@Valid @RequestBody UpdateUserRequest payload) {
+    public MessageResponse<?> updateUser(@PathVariable("id") String id,@Valid @RequestBody UpdateOrgUserRequest payload) {
         try {
             OrgUser user = service.get(UUID.fromString(id));
             user.setName(payload.getName() != null ? payload.getName() : user.getName());
@@ -77,6 +77,7 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
         List<OrgUser> users = service.getAllUsers();
         users = users.stream()
                 .filter(user -> !user.getId().equals(userPrincipal.getId()))
+//                .filter(user -> user.getMtStatus().getCode().equals("01"))
                 .collect(Collectors.toList());
         return new MessageResponse<>(users);
     }
@@ -85,6 +86,30 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
     public MessageResponse<?> getUser(@PathVariable("id") String id) {
         try{
             return new MessageResponse<>(service.getUser(UUID.fromString(id)));
+        } catch (ObjectNotFoundException e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
+        }
+    }
+
+    @PostMapping("/deactivate/{id}")
+    public MessageResponse<?> deactivateUser(@PathVariable("id") String id) {
+        try {
+            OrgUser user = service.get(UUID.fromString(id));
+            user.setMtStatus(mtService.getByCode("02"));
+            service.update(user.getId(), user);
+            return new MessageResponse<>(user);
+        } catch (ObjectNotFoundException e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
+        }
+    }
+
+    @PostMapping("/activate/{id}")
+    public MessageResponse<?> activateUser(@PathVariable("id") String id) {
+        try {
+            OrgUser user = service.get(UUID.fromString(id));
+            user.setMtStatus(mtService.getByCode("01"));
+            service.update(user.getId(), user);
+            return new MessageResponse<>(user);
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());
         }

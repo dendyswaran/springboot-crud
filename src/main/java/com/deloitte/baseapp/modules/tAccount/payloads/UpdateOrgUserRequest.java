@@ -7,7 +7,7 @@ import javax.validation.constraints.Email;
 
 @Getter
 @Setter
-public class UpdateUserRequest {
+public class UpdateOrgUserRequest {
     private String name;
     private String code;
     @Email

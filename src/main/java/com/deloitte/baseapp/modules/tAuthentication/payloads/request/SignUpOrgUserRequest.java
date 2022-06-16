@@ -15,7 +15,7 @@ public class SignUpOrgUserRequest {
     @NotBlank
     private String email;
 
-    private String orgUserGroupId;
+    private String orgUsrGroupId;
     private String orgTeamId;
     private String orgId;
 }

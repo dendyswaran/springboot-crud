@@ -110,14 +110,15 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
 
 
 
-            if(payload.getOrgUserGroupId() != null && userTemp != null) {
-                String orgUserGroupId = payload.getOrgUserGroupId();
+            if(payload.getOrgUsrGroupId() != null && userTemp != null) {
+                String orgUserGroupId = payload.getOrgUsrGroupId();
                 if(orgUsrGroupService.existsById(UUID.fromString(orgUserGroupId))) {
-                    OrgUsrUsrGroup orgUsrUsrGroup = new OrgUsrUsrGroup();
-                    orgUsrUsrGroup.setOrgUsrGroup(orgUsrGroupService.get(UUID.fromString(orgUserGroupId)));
-                    orgUsrUsrGroup.setOrgUser(userTemp);
-                    orgUsrUsrGroups.add(orgUsrUsrGroupService.create(orgUsrUsrGroup));
-                    user.setOrgUsrUsrGroups(orgUsrUsrGroups);
+//                    OrgUsrUsrGroup orgUsrUsrGroup = new OrgUsrUsrGroup();
+//                    orgUsrUsrGroup.setOrgUsrGroup(orgUsrGroupService.get(UUID.fromString(orgUserGroupId)));
+//                    orgUsrUsrGroup.setOrgUser(userTemp);
+//                    orgUsrUsrGroups.add(orgUsrUsrGroupService.create(orgUsrUsrGroup));
+//                    user.setOrgUsrUsrGroups(orgUsrUsrGroups);
+                    user = setUserToHasOneOrgUsrUsrGrpByUpdating(user, orgUserGroupId);
                 }
             }
 
@@ -130,17 +131,22 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
     }
 
 
-    public GenericJwtResponse<UUID, UUID> signIn (final SignInOrgUserRequest payload) throws BadCredentialException {
+    public GenericJwtResponse<UUID, UUID> signIn (final SignInOrgUserRequest payload) throws BadCredentialException, IllegalArgumentException {
+        // find for the username
+        // for additional options, can also check with email and some other attributes (unique attributes recommended)
         final Optional<OrgUser> optionalUser = repository.findByName(payload.getUsername());
         if(optionalUser.isEmpty())
             throw new BadCredentialException();
-
+        final OrgUser user = optionalUser.get();
+        if(user.getMtStatus().getCode().equals("02")) {
+            throw new IllegalArgumentException("User do not have permission");
+        }
+        // for authentication purpose, can use other values such as username, password
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(payload.getUsername(), payload.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String accessToken =  jwtUtils.generateJwtToken(authentication);
-        final OrgUser user = optionalUser.get();
         Set<UUID> orgUsrGroupIds = user.getOrgUsrUsrGroups().stream()
                 .map(orgUsrUsrGroup -> orgUsrUsrGroup.getOrgUsrGroup().getId())
                 .collect(Collectors.toSet());

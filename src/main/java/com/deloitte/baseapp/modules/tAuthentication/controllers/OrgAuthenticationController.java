@@ -51,6 +51,8 @@ public class OrgAuthenticationController {
             return new MessageResponse<>(jwt);
         } catch (BadCredentialException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 400);
+        }catch (IllegalArgumentException e){
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }
     }
 
