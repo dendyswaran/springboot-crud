@@ -8,6 +8,7 @@ import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.MTStatus.services.MtStatusService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
+import com.deloitte.baseapp.modules.authentication.exception.UsernameHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.SignInOrgUserRequest;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrGroup;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
@@ -84,9 +85,12 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
     public OrgUser tSignup(final SignUpOrgUserRequest payload) throws Exception {
         final boolean existsByEmail = this.checkExistByEmail(payload.getEmail());
 
-        if (existsByEmail || checkExistByName(payload.getName()))
+        if (existsByEmail)
             throw new EmailHasBeenUsedException();
 
+        if(checkExistByName(payload.getName())) {
+            throw new UsernameHasBeenUsedException();
+        }
         OrgUser user = new OrgUser();
         user.setName(payload.getName());
         user.setEmail(payload.getEmail());

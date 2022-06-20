@@ -6,6 +6,7 @@ import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
+import com.deloitte.baseapp.modules.authentication.exception.UsernameHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.SignInOrgUserRequest;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
 import com.deloitte.baseapp.modules.tAccount.services.OrgUserService;
@@ -34,7 +35,7 @@ public class OrgAuthenticationController {
                 return MessageResponse.ErrorWithCode("Server error", 500);
             }
             return new MessageResponse<>("New User Successfully Registered");
-        } catch (RoleNotFoundException | RuntimeException | EmailHasBeenUsedException e) {
+        } catch (RoleNotFoundException | RuntimeException | EmailHasBeenUsedException |UsernameHasBeenUsedException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         } catch (ObjectNotFoundException e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), e.getCode());

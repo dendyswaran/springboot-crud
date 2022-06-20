@@ -75,10 +75,10 @@ public class OrgUserController extends TGenericController<OrgUser, UUID> {
     public MessageResponse<?> getUserList() {
         final OrgUserDetailsImpl userPrincipal = (OrgUserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<OrgUser> users = service.getAllUsers();
-        users = users.stream()
-                .filter(user -> !user.getId().equals(userPrincipal.getId()))
+//        users = users.stream()
+//                .filter(user -> !user.getId().equals(userPrincipal.getId()))
 //                .filter(user -> user.getMtStatus().getCode().equals("01"))
-                .collect(Collectors.toList());
+//                .collect(Collectors.toList());
         return new MessageResponse<>(users);
     }
 
