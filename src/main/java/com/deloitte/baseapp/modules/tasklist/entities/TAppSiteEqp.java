@@ -2,6 +2,7 @@ package com.deloitte.baseapp.modules.tasklist.entities;
 
 import com.deloitte.baseapp.commons.GenericEntity;
 import com.deloitte.baseapp.modules.tasklist.object.EqpType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -82,6 +83,8 @@ public class TAppSiteEqp implements Serializable, GenericEntity<TAppSiteEqp> {
     private Integer version;
 
     // TODO: can nullable be false for LAZY evaluation?
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "app_site_id_fk")
     private TAppSite tAppSite;

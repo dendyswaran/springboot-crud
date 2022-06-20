@@ -4,6 +4,7 @@ import com.deloitte.baseapp.modules.tasklist.entities.TAppSite;
 import com.deloitte.baseapp.modules.tasklist.entities.TAppSiteEqp;
 import com.deloitte.baseapp.modules.tasklist.entities.TMtMake;
 import com.deloitte.baseapp.modules.tasklist.entities.TMtWfStatus;
+import com.deloitte.baseapp.modules.tasklist.dto.TasklistDTO;
 import com.deloitte.baseapp.modules.tasklist.object.EqpType;
 import com.deloitte.baseapp.modules.tasklist.repositories.TAppSiteRepository;
 import com.deloitte.baseapp.modules.tasklist.repositories.TMtMakeRepository;
@@ -30,6 +31,7 @@ public class TasklistService {
 
     @Autowired
     private TMtWfStatusRepository tMtWfStatusRepository;
+
 
 //    @Autowired
 //    private ModelMapper modelMapper;
@@ -63,7 +65,29 @@ public class TasklistService {
         return tAppSiteEqpList;
     }
 
+    // TODO: this function overlap with function above already.
+    public TasklistDTO getTAppSiteAndEqpsById(Long id){
+        log.info("TasklistService: Attempting to get TAppSite and Equipments by ID");
+
+        TAppSite tAppSite = getTAppSiteById(id);
+        List<TAppSiteEqp> tAppSiteEqpList = tAppSite.getTAppSiteEqpList();
+
+        if (tAppSiteEqpList.isEmpty()) {
+            throw new IllegalStateException("TAppSiteEqpList is empty: A TAppSite should have at least one or more equipments");
+        }
+
+        TasklistDTO tasklistDTO = new TasklistDTO();
+
+        // TODO: test if modelMapper problem can be overcome
+        tasklistDTO.setTAppSite(tAppSite);
+        tasklistDTO.setTAppSiteEqpList(tAppSiteEqpList);
+
+        return tasklistDTO;
+    }
+
     // Dummy data generator
+
+    // TODO: test against existing data in DB to see what else is missing.
     public void InsertDummyIntoTAppSite() {
         log.info("Attempting to insert Dummy data");
 
@@ -80,16 +104,20 @@ public class TasklistService {
         tAppSite.setCreatedBy("Jun Kang_" + randomNum);
         tAppSite.setNm("PT " + randomNum);
         tAppSite.setDtDecom(LocalDateTime.now());
+        tAppSite.setDtScrap(LocalDateTime.now().plusDays(1));
+        tAppSite.setDtOem(LocalDateTime.now().plusDays(2));
         tAppSite.setTMtWfStatus(tMtWfStatusList.get(0));
 
         for (int i = 0; i < randomRowCount; i++) {
             int randomNumEqp = ThreadLocalRandom.current().nextInt(1000, 10000);
             boolean randomBoolean = ThreadLocalRandom.current().nextBoolean();
+            boolean randomBoolean2 = ThreadLocalRandom.current().nextBoolean();
 
             EqpType eqpType = randomBoolean ? EqpType.REUSE : EqpType.SCRAP;
 
             TAppSiteEqp tAppSiteEqp = new TAppSiteEqp();
 
+            tAppSiteEqp.setHlthChckFlg(randomBoolean2);
             tAppSiteEqp.setSerialNo("serial_" + randomNumEqp);
             tAppSiteEqp.setCd("ABC" + randomNumEqp);
             tAppSiteEqp.setTMtMake(tMtMakeList.get(0));
@@ -103,6 +131,7 @@ public class TasklistService {
         tAppSiteRepository.save(tAppSite);
 
     }
+
 
     // ###########################################
 
