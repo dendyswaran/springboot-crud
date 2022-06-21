@@ -92,6 +92,7 @@ public class OrgUserService extends TGenericService<OrgUser, UUID> {
             throw new UsernameHasBeenUsedException();
         }
         OrgUser user = new OrgUser();
+        user.setCode(payload.getCode());
         user.setName(payload.getName());
         user.setEmail(payload.getEmail());
         user.setPassword(encoder.encode(payload.getPassword()));

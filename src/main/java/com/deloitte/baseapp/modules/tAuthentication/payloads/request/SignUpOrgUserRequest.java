@@ -11,6 +11,8 @@ public class SignUpOrgUserRequest {
     @NotBlank
     private String name;
     @NotBlank
+    private String code;
+    @NotBlank
     private String password;
     @NotBlank
     private String email;
