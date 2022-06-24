@@ -21,16 +21,27 @@ public class JwtUtils {
   @Value("${deloitte.app.jwtExpirationMs}")
   private int jwtExpirationMs;
 
+  @Value("${deloitte.app.jwtExpirationActive}")
+  private boolean jwtExpirationActive;
+
   public String generateJwtToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
-    return Jwts.builder()
-        .setSubject((userPrincipal.getUsername()))
-        .setIssuedAt(new Date())
-        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-        .signWith(SignatureAlgorithm.HS512, jwtSecret)
-        .compact();
+    if(jwtExpirationActive) {
+      return Jwts.builder()
+              .setSubject((userPrincipal.getUsername()))
+              .setIssuedAt(new Date())
+              .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+              .signWith(SignatureAlgorithm.HS512, jwtSecret)
+              .compact();
+    } else {
+      return Jwts.builder()
+              .setSubject((userPrincipal.getUsername()))
+              .setIssuedAt(new Date())
+              .signWith(SignatureAlgorithm.HS512, jwtSecret)
+              .compact();
+    }
   }
 
   public String getUserNameFromJwtToken(String token) {

@@ -7,6 +7,7 @@ import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
+import com.deloitte.baseapp.modules.authentication.payloads.IdleTimeoutRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SignupRequest;
 import com.deloitte.baseapp.modules.authentication.services.AuthenticationService;
@@ -48,6 +49,16 @@ public class AuthenticationController {
         try {
             authenticationService.requestForgotPassword(payload);
             return new MessageResponse<>("Your reset password link has been sent to your email");
+        } catch (final Exception e) {
+            return MessageResponse.ErrorWithCode(e.getMessage(), 500);
+        }
+    }
+
+    @PostMapping("/idle-timeout")
+    public MessageResponse<?> idleTimeout(@Valid @RequestBody IdleTimeoutRequest payload) {
+        try {
+            authenticationService.idleTimeout(payload);
+            return new MessageResponse<>("You have been logged out");
         } catch (final Exception e) {
             return MessageResponse.ErrorWithCode(e.getMessage(), 500);
         }

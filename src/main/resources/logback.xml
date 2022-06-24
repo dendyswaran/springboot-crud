@@ -23,6 +23,7 @@
     </appender>
 
     <appender name="file-error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- Please change to desire location -->
         <file>/Users/rfatchurrohman/logfiles/error.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>

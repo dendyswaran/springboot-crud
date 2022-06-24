@@ -75,6 +75,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
           if(!jwt.equalsIgnoreCase(userTokenRedis.getToken())){
             accessGranted = false;
           }
+        } else {
+          accessGranted = false;
         }
 
         if(accessGranted) {

@@ -1,11 +1,9 @@
 package com.deloitte.baseapp.modules.authentication.services;
 
-import com.deloitte.baseapp.commons.LogInfo;
 import com.deloitte.baseapp.configs.security.jwt.JwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
-import com.deloitte.baseapp.modules.account.entities.UserToken;
 import com.deloitte.baseapp.modules.account.entities.UserTokenRedis;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.account.repositories.UserRepository;
@@ -14,13 +12,16 @@ import com.deloitte.baseapp.modules.account.repositories.UserTokenRepository;
 import com.deloitte.baseapp.modules.account.services.RoleService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
+import com.deloitte.baseapp.modules.authentication.exception.AlreadyLoggedOutException;
 import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
+import com.deloitte.baseapp.modules.authentication.payloads.IdleTimeoutRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SignupRequest;
 import com.deloitte.baseapp.modules.notification.payloads.EmailRequest;
 import com.deloitte.baseapp.modules.notification.services.NotificationEmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -59,6 +60,12 @@ public class AuthenticationService {
 
     @Autowired
     UserTokenRedisRepository userTokenRedisRepository;
+
+    @Value("${deloitte.app.idleTimeoutMs}")
+    private Long idleTimeoutMs;
+
+    @Value("${deloitte.app.gracePeriodMs}")
+    private Long gracePeriodMs;
 
     /**
      * Registers a user by using email and password
@@ -117,7 +124,9 @@ public class AuthenticationService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRoles());
+                user.getRoles(),
+                idleTimeoutMs,
+                gracePeriodMs);
     }
 
     /**
@@ -154,5 +163,14 @@ public class AuthenticationService {
 
         userTokenRedisRepository.save(userTokenRedis);
 
+    }
+
+    public void idleTimeout(final IdleTimeoutRequest payload) throws AlreadyLoggedOutException {
+        Optional<UserTokenRedis> getUserTokenRedis = userTokenRedisRepository.findById(payload.getId());
+        if(getUserTokenRedis.isEmpty()){
+            throw new AlreadyLoggedOutException();
+        }
+
+        userTokenRedisRepository.deleteById(payload.getId());
     }
 }
