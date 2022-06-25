@@ -11,6 +11,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -43,11 +44,14 @@ public class Menu implements Serializable, GenericEntity<Menu> {
 
 
     // disable auto generation of getter and setter for this attribute to avoid infinite recursion during JsonConversion
+
+    //    @Setter(AccessLevel.NONE)
+    // TODO: after model mapping work try to switch back to SET
+
     @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Set<Menu> children;
+    private List<Menu> children;
 
     /**
      * What will happen when a menu is clicked
@@ -71,8 +75,13 @@ public class Menu implements Serializable, GenericEntity<Menu> {
     private Boolean isActive;
 
 
+//    @JsonIgnore
+//    public Set<Menu> getChildren() {
+//        return children;
+//    }
+//
     @JsonIgnore
-    public Set<Menu> getChildren() {
+    public List<Menu> getChildren() {
         return children;
     }
 
