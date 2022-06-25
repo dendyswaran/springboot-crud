@@ -56,6 +56,14 @@ public class MenuService {
         return menuList;
     }
 
+    public List<Menu> findAllRootMenu() {
+        List<Menu> menuList = menuRepository.findByParentIsNull();
+        if (menuList.isEmpty()) {
+            throw new IllegalStateException("Menu object is non existence");
+        }
+        return menuList;
+    }
+
     public Menu findMenuById(Long id) {
         Optional<Menu> menuOpt = menuRepository.findById(id);
         if (menuOpt.isEmpty()) {
@@ -74,11 +82,16 @@ public class MenuService {
                                 menuList.forEach(menu -> {
                                     String href = String.format("/%s", menu.getPathname()); // format for
 
+
+
                                     // if menu have a parent.
                                     if (menu.getParentId() > 0) {
                                         Long parentId = menu.getParentId();
                                         Menu parentMenu = findMenuById(parentId);
                                         menu.setParent(parentMenu);
+
+                                        System.out.println(parentId);
+                                        System.out.println(parentMenu);
 
                                         // combine parent href with child pathname to create new href and replace the var.
                                         href = String.format("%s/%s", parentMenu.getHref(), menu.getPathname());
@@ -103,13 +116,21 @@ public class MenuService {
     }
 
 
-    public List<MenuResponseDTO> mapMenuToMenuResponseDTO() {
-        List<Menu> menuList = findAllMenu();
+//    public List<MenuResponseDTO> mapMenuToMenuResponseDTO() {
+//        List<Menu> menuList = findAllMenu();
+//
+//        Type DTOType = new TypeToken<List<MenuResponseDTO>>(){}.getType();
+//
+//        return modelMapper.map(menuList, DTOType);
+//    }
 
+    public List<MenuResponseDTO> mapMenuToMenuResponseDTO() {
+        List<Menu> menuList = findAllRootMenu();
         Type DTOType = new TypeToken<List<MenuResponseDTO>>(){}.getType();
 
         return modelMapper.map(menuList, DTOType);
     }
+
 
 
 }

@@ -15,6 +15,8 @@ public class MenuResponseDTO {
     private Long id;
     private String name;
     private String code;
-    private List<Menu> children;
+    private Integer priority;
     private EMenuClickEvent clickEvent;
+    private String href;
+    private List<Menu> children;
 }

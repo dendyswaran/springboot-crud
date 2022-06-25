@@ -1,8 +1,9 @@
 id,name,code,pathname,is_active,parent_id,priority
 1,Home,a,home,TRUE,0,1
 2,Tasklist,b,tasklist,TRUE,0,2
-3,File Upload,g,upload,TRUE,0,3
-4,Ioh,c,ioh,TRUE,2,1
-5,Decom,d,decom,TRUE,2,2
-6,Scrap,e,scrap,TRUE,2,3
-7,OEM,f,oem,TRUE,2,4
+3,File Upload,c,upload,TRUE,0,3
+4,Ioh,d,ioh,TRUE,2,1
+5,Decom,e,decom,TRUE,2,2
+6,Scrap,f,scrap,TRUE,2,3
+7,OEM,g,oem,TRUE,2,4
+8,Contact,h,contact,TRUE,4,1
