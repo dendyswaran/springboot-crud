@@ -25,11 +25,6 @@ public class MenuController extends GenericController<Menu> {
         super(repository, "menu");
     }
 
-    /**
-     * Endpoint to returns all primary menus
-     *
-     * @return
-     */
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/parents")
     public MessageResponse findAllParent() {
@@ -59,6 +54,16 @@ public class MenuController extends GenericController<Menu> {
        } catch (Exception e) {
            return MessageResponse.ErrorWithCode(e.getMessage(), 400);
        }
+    }
+
+    // TODO: to be removed
+    @GetMapping("/get-menu-by-id/{id}")
+    public MessageResponse getMenuById(@PathVariable Long id) {
+        Menu menu = menuService.findMenuById(id);
+
+        System.out.println(menu.getChildren());
+
+        return new MessageResponse<>(menu);
     }
 
 }

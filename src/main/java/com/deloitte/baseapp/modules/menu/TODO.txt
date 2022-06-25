@@ -1,0 +1,25 @@
+Menu Feature:
+TODO:
+ - Try to understand:
+    - How @CSVBindByName works --> checked
+    - Understand how Reddis work --> done halfway
+    - Storing cache at Reddis or LocalStorage --> checked
+    - How @Cacheable annotation works
+
+TODO:
+    - What I can do currently:
+        1) Hard code a set of menu values in DB
+        2) fetch to front-end with an API Call upon logging in --> maybe we can enable a menu refresh feature?
+        3) Store the menu at localstorage
+        4) Change the value in DB
+        5) Check if value in DB changes (supposedly won't change)
+        6) Logout and login again:
+
+
+
+ TODO:
+  - Need to figure out how to design our DTO
+   -Why is this so?
+    - Because we need to send the parent menu together with their children in a structured manner s
+    - such that parent contains children and children contain children --> dynamically
+    - Note that it can also be separated because we can send and assemble the information from the front-end.

@@ -1,4 +1,8 @@
-name,code,href,is_active
-Perfect Half,UP01,upload,TRUE
-Stepmother's Friend,NG01,nasi-goreng,TRUE
-Raw Class,RW01,raw-class,TRUE
+id,name,code,pathname,is_active,parent_id,priority
+1,Home,a,home,TRUE,0,1
+2,Tasklist,b,tasklist,TRUE,0,2
+3,File Upload,g,upload,TRUE,0,3
+4,Ioh,c,ioh,TRUE,2,1
+5,Decom,d,decom,TRUE,2,2
+6,Scrap,e,scrap,TRUE,2,3
+7,OEM,f,oem,TRUE,2,4

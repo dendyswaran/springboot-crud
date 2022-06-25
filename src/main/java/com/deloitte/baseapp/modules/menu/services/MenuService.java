@@ -1,11 +1,13 @@
 package com.deloitte.baseapp.modules.menu.services;
 
 import com.deloitte.baseapp.commons.LogInfo;
+import com.deloitte.baseapp.modules.menu.DTO.MenuResponseDTO;
 import com.deloitte.baseapp.modules.menu.entities.Menu;
 import com.deloitte.baseapp.modules.menu.repositories.MenuRepository;
 import com.deloitte.baseapp.utils.CSVFileReader;
 import com.deloitte.baseapp.utils.QueryFileReader;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -28,7 +31,7 @@ public class MenuService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Cacheable(value = "menuCache", unless= "#result.size() == 0")
+    @Cacheable(value = "menuCache", unless = "#result.size() == 0")
     public List<Menu> findAllParent() throws Exception {
         final QueryFileReader<Menu> queryFileReader = new QueryFileReader<>(jdbcTemplate, Menu.class);
         return queryFileReader.queryMulti("menu_findAllParents.sql");
@@ -39,25 +42,54 @@ public class MenuService {
         return queryFileReader.queryMulti("menu_findAllByParent.sql", ps -> ps.setLong(1, parentId));
     }
 
+    public List<Menu> findAllMenu() {
+        List<Menu> menuList = menuRepository.findAll();
+        if (menuList.isEmpty()) {
+            throw new IllegalStateException("Menu object is non existence");
+        }
+        return menuList;
+    }
+
+    public Menu findMenuById(Long id) {
+        Optional<Menu> menuOpt = menuRepository.findById(id);
+        if (menuOpt.isEmpty()) {
+            throw new ObjectNotFoundException(id, "Menu");
+        }
+        return menuOpt.get();
+    }
+
     @Async
     public CompletableFuture<Boolean> insertByCSVUpload(final MultipartFile file) {
         return CompletableFuture.supplyAsync(() -> {
 
             try {
-//                final List<Menu> menuList = new CSVFileReader<Menu>().readFromFile(file.getInputStream(), Menu.class);
-//                menuList.forEach(menu -> {
-//                    //TODO: insert to db
-//                    log.info(LogInfo.print(CLASSNAME,
-//                            "insertByCSVUpload", menu.getName() + " has been inserted.."));
-//                });
 
-                new CSVFileReader<Menu>().readFromFolder(Menu.class, menuList -> {
+                new CSVFileReader<Menu>().readFromFolder(Menu.class, menuList ->
                     menuList.forEach(menu -> {
-//                    //TODO: insert to db
+
+                        System.out.printf("id: %s, name: %s, code: %s, parent: %s, children: %s, event: %s, href: %s, priority: %s, is-active: %s%n"
+                                , menu.getId(), menu.getName(), menu.getCode(), menu.getParentId(),
+                                menu.getChildren(), menu.getClickEvent(), menu.getHref(), menu.getPriority(), menu.getIsActive());
+
+                        String href = String.format("/%s", menu.getPathname()); // format for
+
+                        // if menu have a parent.
+                        if (menu.getParentId() > 0) {
+                            Long parentId = menu.getParentId();
+                            Menu parentMenu = findMenuById(parentId);
+                            menu.setParent(parentMenu);
+
+                            // combine parent href with child pathname to create new href and replace the var.
+                            href = String.format("%s/%s", parentMenu.getHref(), menu.getPathname());
+                        }
+                        menu.setHref(href);
+//                        menuRepository.saveAndFlush(menu.createNewInstance());
+                        menuRepository.saveAndFlush(menu);
+
                         log.info(LogInfo.print(CLASSNAME,
                                 "insertByCSVUpload", menu.getName() + " has been inserted.."));
-                    });
-                });
+                    })
+                );
             } catch (Exception e) {
                 log.error(LogInfo.print(CLASSNAME,
                         "insertByCSVUpload", e.getMessage()));
@@ -68,4 +100,23 @@ public class MenuService {
             return Boolean.TRUE;
         });
     }
+
+
+    public MenuResponseDTO mapMenuToMenuResponseDTO() {
+
+
+
+
+        return null;
+    }
+
+
+//                final List<Menu> menuList = new CSVFileReader<Menu>().readFromFile(file.getInputStream(), Menu.class);
+//                menuList.forEach(menu -> {
+//                    //TODO: insert to db
+//                    log.info(LogInfo.print(CLASSNAME,
+//                            "insertByCSVUpload", menu.getName() + " has been inserted.."));
+//                });
+
+
 }
