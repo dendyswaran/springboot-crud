@@ -13,13 +13,12 @@ public class JwtResponse {
     private String username;
     private String email;
     private Set<Role> roles;
-
     private Long idleTimeoutMs;
-
     private Long gracePeriodMs;
+    private Boolean idleTimeoutActive;
 
     public JwtResponse(String accessToken, Long id, String username, String email, Set<Role> roles,
-                       Long idleTimeoutMs, Long gracePeriodMs) {
+                       Long idleTimeoutMs, Long gracePeriodMs, Boolean idleTimeoutActive) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
@@ -27,6 +26,7 @@ public class JwtResponse {
         this.roles = roles;
         this.idleTimeoutMs = idleTimeoutMs;
         this.gracePeriodMs = gracePeriodMs;
+        this.idleTimeoutActive = idleTimeoutActive;
     }
 
 }

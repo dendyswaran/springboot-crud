@@ -67,6 +67,9 @@ public class AuthenticationService {
     @Value("${deloitte.app.gracePeriodMs}")
     private Long gracePeriodMs;
 
+    @Value("${deloitte.app.idleTimeoutActive}")
+    private Boolean idleTimeoutActive;
+
     /**
      * Registers a user by using email and password
      *
@@ -126,7 +129,8 @@ public class AuthenticationService {
                 user.getEmail(),
                 user.getRoles(),
                 idleTimeoutMs,
-                gracePeriodMs);
+                gracePeriodMs,
+                idleTimeoutActive);
     }
 
     /**
