@@ -6,6 +6,7 @@ import com.deloitte.baseapp.modules.orgs.entites.Org;
 import com.deloitte.baseapp.modules.orgs.entites.OrgUsrUsrGroup;
 import com.deloitte.baseapp.modules.MTStatus.entities.MtStatus;
 import com.deloitte.baseapp.modules.teams.entities.OrgUsrTeam;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -40,7 +41,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
     private String password;
     private String email;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="org_id", referencedColumnName = "id")
     @JsonIgnoreProperties
     private Org org;
@@ -57,7 +58,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
 
     @ManyToOne
     @JoinColumn(name = "mt_status_id")
-    @JsonManagedReference
+    @JsonBackReference(value="mt_status_id")
     private MtStatus mtStatus;
 
     @Override

@@ -4,6 +4,7 @@ import com.deloitte.baseapp.commons.AuditModel;
 import com.deloitte.baseapp.commons.tModules.TGenericEntity;
 import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,7 +22,7 @@ import java.util.UUID;
 public class MtStatus extends AuditModel implements TGenericEntity<MtStatus, UUID> {
     @Id
     @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name="uuid", strategy = "org.hibernate.id.UUIDGenerator")
+    @GenericGenerator(name="uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
     private String code;
@@ -29,7 +30,7 @@ public class MtStatus extends AuditModel implements TGenericEntity<MtStatus, UUI
     private String dscp;
 
     @OneToMany(mappedBy = "mtStatus")
-    @JsonBackReference
+    @JsonManagedReference(value="mt_status_id")
     private Set<OrgUser> orgUsers;
 
     @Override
