@@ -70,6 +70,7 @@ public class MenuController extends GenericController<Menu> {
     }
 
     /**
+     *
      * End point for getting Menu structured in json format. The formatting of the menu is defined by the MenuConverter
      * and the MenuResponseDTO which is applied to all levels (nested) of json object.
      * <p>
@@ -85,7 +86,14 @@ public class MenuController extends GenericController<Menu> {
      * <p>
      * }
      *
-     * @return upon successful execution this API return a MenuResponseSTO object that
+     * @return
+     *      upon successful execution this API return a MenuResponseDTO object that contain all neccessary data to render
+     *      Navbar Menu for the front-end components.
+     *
+     * @throws
+     *      IllegalStateException illegalStateEx when the list of menu is empty
+     *      Exception Ex for unexpected error when the menu retrieval is unsuccessful.
+     *
      */
     @GetMapping("/get")
     public MessageResponse<List<MenuResponseDTO>> getMenu() {
