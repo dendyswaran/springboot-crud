@@ -5,8 +5,6 @@ import com.deloitte.baseapp.modules.menu.entities.Menu;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.util.List;
 
 @Getter
@@ -17,6 +15,7 @@ public class MenuResponseDTO {
     private String code;
     private Integer priority;
     private EMenuClickEvent clickEvent;
+    private String pathname;
     private String href;
     private List<Menu> children;
 }

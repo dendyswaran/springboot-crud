@@ -11,7 +11,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -22,7 +21,6 @@ public class Menu implements Serializable, GenericEntity<Menu> {
 
     @Id
     @CsvBindByName
-//    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank
@@ -42,46 +40,35 @@ public class Menu implements Serializable, GenericEntity<Menu> {
     @CsvBindByName(column = "parent_id")
     private Long parentId;
 
-
-    // disable auto generation of getter and setter for this attribute to avoid infinite recursion during JsonConversion
-
-    //    @Setter(AccessLevel.NONE)
-    // TODO: after model mapping work try to switch back to SET
-
     @Getter(AccessLevel.NONE)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private List<Menu> children;
+    private Set<Menu> children;
 
     /**
      * What will happen when a menu is clicked
      */
+    @Column(length = 50)
+    @CsvBindByName(column = "click_event")
     @Enumerated(EnumType.STRING)
-    private EMenuClickEvent clickEvent = EMenuClickEvent.OPEN;
+    private EMenuClickEvent clickEvent;
 
-    @Transient
+    //TODO: decide on want to send processed href or unprocessed pathname --> store either one dont store both
+    // if href is processed backend --> (kinda unneccessary?) --> sending path name is more logical since we are already looping the menus.
     @CsvBindByName
     private String pathname;
 
+    // TODO: TO BE REMOVED, THIS FIELD IS REDUNDANT, pathname alone is enough.
     private String href;
 
-    /**
-     * Menu ordering is based on the highest priority
-     */
     @CsvBindByName
     private Integer priority;
 
     @CsvBindByName(column = "is_active")
     private Boolean isActive;
 
-
-//    @JsonIgnore
-//    public Set<Menu> getChildren() {
-//        return children;
-//    }
-//
     @JsonIgnore
-    public List<Menu> getChildren() {
+    public Set<Menu> getChildren() {
         return children;
     }
 

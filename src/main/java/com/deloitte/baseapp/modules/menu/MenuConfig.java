@@ -11,25 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MenuConfig {
 
-
-    // This approach only work with 2 layers
-
-//    @Bean
-//    public ModelMapper modelMapper() {
-//        ModelMapper modelMapper = new ModelMapper();
-//
-//        TypeMap<Menu, MenuResponseDTO> propertyMapper =
-//                modelMapper.createTypeMap(Menu.class, MenuResponseDTO.class);
-//
-//        propertyMapper.addMappings(mapper ->
-//                mapper.using(new MenuListConverter())
-//                        .map(Menu::getChildren, MenuResponseDTO::setChildren)
-//        );
-//        return modelMapper;
-//    }
-
-
-    // This approach work with all layers
+    // TODO: after merge with other branch with ModelMapper typed Bean, please assign an identifier to differentiate the modelmapper Bean.
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
@@ -40,15 +22,8 @@ public class MenuConfig {
         propertyMapper.addMappings(mapper ->
                 mapper.using(MenuConverter.menuToMenuResponseDTOConverter)
                         .map(Menu::getChildren, MenuResponseDTO::setChildren)
-
-
         );
         return modelMapper;
     }
-
-//                        System.out.printf("id: %s, name: %s, code: %s, parent: %s, children: %s, event: %s, href: %s, priority: %s, is-active: %s%n"
-//                                , menu.getId(), menu.getName(), menu.getCode(), menu.getParentId(),
-//                                menu.getChildren(), menu.getClickEvent(), menu.getHref(), menu.getPriority(), menu.getIsActive());
-
 
 }

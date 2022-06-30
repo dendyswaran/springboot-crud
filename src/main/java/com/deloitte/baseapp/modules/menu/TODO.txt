@@ -15,7 +15,8 @@ TODO:
         5) Check if value in DB changes (supposedly won't change)
         6) Logout and login again:
 
-
+Layout Registration at App --> how to specify JSX? also put JSX at DB?
+ - Established unwanted dependency of JavaScript exports and Database.
 
  TODO:
   - Need to figure out how to design our DTO

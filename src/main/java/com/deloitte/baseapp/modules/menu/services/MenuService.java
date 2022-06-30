@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -48,14 +49,14 @@ public class MenuService {
         return queryFileReader.queryMulti("menu_findAllByParent.sql", ps -> ps.setLong(1, parentId));
     }
 
-    public List<Menu> findAllMenu() {
-        List<Menu> menuList = menuRepository.findAll();
-        if (menuList.isEmpty()) {
-            throw new IllegalStateException("Menu object is non existence");
-        }
-        return menuList;
-    }
-
+    /**
+     *
+     * This method executes findByParentIsNull from menuRepository to extract Menu data that has their parent row == null,
+     * in other words only the outer most layer of the Menu records are extracted.
+     *
+     *
+     * @return List of Menu which has not yet been sorted.
+     */
     public List<Menu> findAllRootMenu() {
         List<Menu> menuList = menuRepository.findByParentIsNull();
         if (menuList.isEmpty()) {
@@ -64,6 +65,13 @@ public class MenuService {
         return menuList;
     }
 
+    /**
+     *
+     * This method executes findById from menuRepository to extract Menu data of specified id,
+     *
+     * @param id is identifier of the menu item
+     * @return Menu Item of specified Id.
+     */
     public Menu findMenuById(Long id) {
         Optional<Menu> menuOpt = menuRepository.findById(id);
         if (menuOpt.isEmpty()) {
@@ -72,17 +80,46 @@ public class MenuService {
         return menuOpt.get();
     }
 
+    /**
+     *
+     * This method applied the mapping rules that is predefined in the converter (under MenuConverter)
+     * and the modelMapper config under MenuConfig; to map the List of Menu object extracted from the database into a
+     * list of MenuResponseDTO objects.
+     *
+     * @return List of MenuResponseDTO objects with predefined structure.
+     */
+    public List<MenuResponseDTO> mapMenuToMenuResponseDTO() {
+        List<Menu> menuList = findAllRootMenu();
+        Type DTOType = new TypeToken<List<MenuResponseDTO>>() {
+        }.getType();
+
+        return modelMapper.map(menuList, DTOType);
+    }
+
+    /**
+     *
+     * This methods will process the data retrieved from the csv Bean, process them then save them into the Database
+     * the conforms to the predefined relationships of the Menu entity.
+     *
+     * @param file csv file which the menu is to be loaded into the database.
+     * @return Boolean.True indicating the input is successful, otherwise Boolean.False.
+     */
     @Async
+    @Transactional
     public CompletableFuture<Boolean> insertByCSVUpload(final MultipartFile file) {
         return CompletableFuture.supplyAsync(() -> {
+
+            //TODO: (Optional) put the whole csv file into a hashmap first then insert them sequentially after that
+            // This can ensure that there wont be error even if the sequence are placed incorrectly in the csv file.
+
+            // TODO: (Optional) suggest to implement an additional command to drop the table first before executing the
+            //  command below.
 
             try {
 
                 new CSVFileReader<Menu>().readFromFolder(Menu.class, menuList ->
                                 menuList.forEach(menu -> {
                                     String href = String.format("/%s", menu.getPathname()); // format for
-
-
 
                                     // if menu have a parent.
                                     if (menu.getParentId() > 0) {
@@ -113,22 +150,6 @@ public class MenuService {
 
             return Boolean.TRUE;
         });
-    }
-
-
-//    public List<MenuResponseDTO> mapMenuToMenuResponseDTO() {
-//        List<Menu> menuList = findAllMenu();
-//
-//        Type DTOType = new TypeToken<List<MenuResponseDTO>>(){}.getType();
-//
-//        return modelMapper.map(menuList, DTOType);
-//    }
-
-    public List<MenuResponseDTO> mapMenuToMenuResponseDTO() {
-        List<Menu> menuList = findAllRootMenu();
-        Type DTOType = new TypeToken<List<MenuResponseDTO>>(){}.getType();
-
-        return modelMapper.map(menuList, DTOType);
     }
 
 

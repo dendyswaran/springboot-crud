@@ -1,9 +1,15 @@
-id,name,code,pathname,is_active,parent_id,priority
-1,Home,a,home,TRUE,0,1
-2,Tasklist,b,tasklist,TRUE,0,2
-3,File Upload,c,upload,TRUE,0,3
-4,Ioh,d,ioh,TRUE,2,1
-5,Decom,e,decom,TRUE,2,2
-6,Scrap,f,scrap,TRUE,2,3
-7,OEM,g,oem,TRUE,2,4
-8,Contact,h,contact,TRUE,4,1
+id,name,code,pathname,is_active,parent_id,priority,click_event
+1,Home,a,home,TRUE,0,1,OPEN
+2,Tasklist,b,tasklist,TRUE,0,2,SHOW_SUBMENU
+3,File Upload,c,upload,TRUE,0,3,OPEN
+4,Assign,d,assign,TRUE,0,4,OPEN
+5,Site Status Enquiry,e,enquiry,TRUE,0,5,OPEN
+6,User Management,USER_MANAGEMENT,user-management,TRUE,0,6,OPEN
+7,Ioh,IOH_TASKLIST,ioh,TRUE,2,1,OPEN
+8,Decom,h,decom,TRUE,2,2,OPEN
+9,Scrap,i,scrap,TRUE,2,3,OPEN
+10,OEM,j,oem,TRUE,2,4,OPEN
+11,Warehouse,k,warehouse,TRUE,4,1,OPEN
+12,Team,l,team,TRUE,4,2,OPEN
+13,Site Access,m,site-access,TRUE,4,3,OPEN
+15,Contact,n,contact,TRUE,13,1,OPEN

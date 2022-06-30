@@ -49,6 +49,16 @@ public class MenuController extends GenericController<Menu> {
         }
     }
 
+    /**
+     * End point of Menu upload by CSV file.
+     * The user defines a a csv file formatted in a specific format and
+     * this end point will input the data from the CSV file into the underlying Database.
+     * <p>
+     * This function takes in MultipartFile in csv format, reads them and process them
+     *
+     * @param file MultipartFile in csv format
+     * @return MessageResponse static object indicating the success of failure of the execution.
+     */
     @PostMapping("/insert-by-csv-upload")
     public MessageResponse insertByCSVUpload(@RequestParam("file") final MultipartFile file) {
         try {
@@ -59,20 +69,44 @@ public class MenuController extends GenericController<Menu> {
         }
     }
 
-    // TODO: to be removed
-    @GetMapping("/get-menu-by-id/{id}")
-    public MessageResponse getMenuById(@PathVariable Long id) {
-//        Menu menu = menuService.findMenuById(id);
+    /**
+     * End point for getting Menu structured in json format. The formatting of the menu is defined by the MenuConverter
+     * and the MenuResponseDTO which is applied to all levels (nested) of json object.
+     * <p>
+     * e.g. structure of the returned DTO object
+     * {
+     * menu:
+     * {
+     * childMenu:
+     * {
+     * grandChildrenMenu:
+     * }
+     * }
+     * <p>
+     * }
+     *
+     * @return upon successful execution this API return a MenuResponseSTO object that
+     */
+    @GetMapping("/get")
+    public MessageResponse<List<MenuResponseDTO>> getMenu() {
+        try {
 
-        log.info("getting menu");
+            log.info("getting all menu item");
+            List<MenuResponseDTO> menuDTOs = menuService.mapMenuToMenuResponseDTO();
+            return new MessageResponse<>(menuDTOs);
 
-        // TODO: add in error handling
+        } catch (IllegalStateException illegalStateEx) {
 
-        List<MenuResponseDTO> menuDTOs = menuService.mapMenuToMenuResponseDTO();
+            log.error("No Menu object can be found from the Database. Failed with error message: {}", illegalStateEx.getMessage());
+            return MessageResponse.ErrorWithCode(illegalStateEx.getMessage(), 400);
 
-//        System.out.println(menu.getChildren());
+        } catch (Exception ex) {
 
-        return new MessageResponse<>(menuDTOs);
+            log.error("An unexpected error occurred while attempting to get Menu data from the Database. Failed with error message: {}",
+                    ex.getMessage());
+
+            return MessageResponse.ErrorWithCode(ex.getMessage(), 400);
+        }
     }
 
 }
