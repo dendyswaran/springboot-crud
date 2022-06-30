@@ -30,7 +30,7 @@ public class MtStatus extends AuditModel implements TGenericEntity<MtStatus, UUI
     private String dscp;
 
     @OneToMany(mappedBy = "mtStatus")
-    @JsonManagedReference(value="mt_status_id")
+    @JsonBackReference(value="mt_status_id")
     private Set<OrgUser> orgUsers;
 
     @Override

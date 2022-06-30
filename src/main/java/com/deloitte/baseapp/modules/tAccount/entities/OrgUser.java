@@ -58,7 +58,7 @@ public class OrgUser extends AuditModel implements TGenericEntity<OrgUser, UUID>
 
     @ManyToOne
     @JoinColumn(name = "mt_status_id")
-    @JsonBackReference(value="mt_status_id")
+    @JsonManagedReference(value="mt_status_id")
     private MtStatus mtStatus;
 
     @Override
