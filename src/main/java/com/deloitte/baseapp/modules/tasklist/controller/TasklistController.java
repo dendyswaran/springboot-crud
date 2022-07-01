@@ -10,6 +10,8 @@ import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -120,6 +122,17 @@ public class TasklistController {
         }
     }
 
+    // for paging and searching
+    // TODO: add another param postcode @RequestParam(defaultValue = "empty") String postcode
+    @GetMapping("/sites")
+    public MessageResponse<Page<TAppSite>> getAllTasklists(Pageable pageable, @RequestParam(defaultValue = "empty") String siteId) {
+        try {
+            Page<TAppSite> tAppSitePage = tasklistService.getAllSites(pageable, siteId);
+            return new MessageResponse<>(tAppSitePage);
+        } catch (Exception ex) {
+            return MessageResponse.ErrorWithCode("TAppSites Search Retrieval Unsuccessful", 400);
+        }
+    }
 
     @PostMapping("/insert-dummy")
     public void insertDummyDataToTAppSite() {
