@@ -1,6 +1,8 @@
 package com.deloitte.baseapp.modules.tasklist.entities;
 
 import com.deloitte.baseapp.commons.GenericEntity;
+import com.deloitte.baseapp.modules.assignment.entities.TAppSiteWh;
+import com.deloitte.baseapp.modules.assignment.entities.TStrSiteAccs;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -108,6 +110,14 @@ public class TAppSite implements Serializable, GenericEntity<TAppSite> {
     @JsonIgnore
     @OneToMany(mappedBy = "tAppSite", cascade = CascadeType.ALL)
     private List<TAppSiteEqp> tAppSiteEqpList = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "tAppSite", cascade = CascadeType.ALL)
+    private List<TStrSiteAccs> tStrSiteAccsList = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "tAppSite", cascade = CascadeType.ALL)
+    private List<TAppSiteWh> tAppSiteWhList= new ArrayList<>();
 
     /*
        Add or remove TAppSiteEqp from TAppSite
