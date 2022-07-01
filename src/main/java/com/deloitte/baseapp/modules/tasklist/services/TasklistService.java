@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -83,6 +85,19 @@ public class TasklistService {
         tasklistDTO.setTAppSiteEqpList(tAppSiteEqpList);
 
         return tasklistDTO;
+    }
+
+    // for paging and searching
+    public Page<TAppSite> getAllSites(Pageable pageable, String siteId){
+        // exception if no param provided
+        if (!siteId.equals("empty")) {
+            log.info("TasklistService: Attempting to retrieve TAppSite for searching records");
+            return tAppSiteRepository.findAll(pageable, siteId);
+        }
+        else {
+            log.info("TasklistService: Attempting to retrieve TAppSite from database");
+            return tAppSiteRepository.findAll(pageable);
+        }
     }
 
     // Dummy data generator
