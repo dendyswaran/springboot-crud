@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 public class SignUpOrgUserRequest {
-    @NotBlank
+    @NotBlank(message = "name is required")
     private String name;
     @NotBlank
     private String code;

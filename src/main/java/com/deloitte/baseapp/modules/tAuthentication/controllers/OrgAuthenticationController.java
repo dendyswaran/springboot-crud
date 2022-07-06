@@ -2,6 +2,8 @@ package com.deloitte.baseapp.modules.tAuthentication.controllers;
 
 import com.deloitte.baseapp.commons.MessageResponse;
 import com.deloitte.baseapp.commons.ObjectNotFoundException;
+import com.deloitte.baseapp.commons.tModules.TGenericController;
+import com.deloitte.baseapp.commons.tModules.TGenericRepository;
 import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
@@ -19,10 +21,11 @@ import java.util.UUID;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/org-auth")
-public class OrgAuthenticationController {
+public class OrgAuthenticationController extends TGenericController<OrgUser, UUID> {
     OrgUserService service;
 
-    public OrgAuthenticationController(OrgUserService service) {
+    public OrgAuthenticationController(TGenericRepository<OrgUser, UUID> repository, OrgUserService service) {
+        super(repository, "OrgUserController");
         this.service = service;
     }
 
