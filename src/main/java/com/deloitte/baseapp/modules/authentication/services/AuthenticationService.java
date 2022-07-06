@@ -2,8 +2,6 @@ package com.deloitte.baseapp.modules.authentication.services;
 
 import com.deloitte.baseapp.configs.security.jwt.GenericJwtResponse;
 import com.deloitte.baseapp.configs.security.jwt.JwtUtils;
-import com.deloitte.baseapp.modules.account.entities.ERole;
-import com.deloitte.baseapp.modules.tAccount.entities.OrgUser;
 import com.deloitte.baseapp.modules.account.entities.Role;
 import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
@@ -53,13 +51,8 @@ public class AuthenticationService {
     @Autowired
     NotificationEmailService notificationEmailService;
 
-    @Autowired
     RoleRepository roleRepository;
-
-
-    @Autowired
     OrgUserService orgUserService;
-
     /**
      * Registers a user by using email and password
      *
