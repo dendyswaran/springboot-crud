@@ -13,6 +13,7 @@ import com.deloitte.baseapp.modules.account.services.RoleService;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.exception.AlreadyLoggedOutException;
+import com.deloitte.baseapp.modules.authentication.exception.UsernameHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.IdleTimeoutRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
@@ -73,10 +74,14 @@ public class AuthenticationService {
      * @param payload
      * @return
      */
-    public User signup(final SignupRequest payload) throws EmailHasBeenUsedException, RoleNotFoundException {
-        final Boolean exists = userRepository.existsByEmail(payload.getEmail());
-        if (exists)
+    public User signup(final SignupRequest payload) throws EmailHasBeenUsedException, RoleNotFoundException, UsernameHasBeenUsedException {
+        final Boolean existsEmail = userRepository.existsByEmail(payload.getEmail());
+        if (existsEmail)
             throw new EmailHasBeenUsedException();
+
+        final Boolean existsUsername = userRepository.existsByUsername(payload.getUsername());
+        if (existsUsername)
+            throw new UsernameHasBeenUsedException();
 
         User user = new User();
         user.setUsername(payload.getUsername());
@@ -106,12 +111,12 @@ public class AuthenticationService {
      * @throws BadCredentialException
      */
     public JwtResponse signin(final SigninRequest payload) throws BadCredentialException {
-        final Optional<User> optionalUser = userRepository.findByUsername(payload.getUsername());
+        final Optional<User> optionalUser = userRepository.findByEmail(payload.getEmail());
         if (optionalUser.isEmpty())
             throw new BadCredentialException();
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(payload.getUsername(), payload.getPassword()));
+                new UsernamePasswordAuthenticationToken(optionalUser.get().getUsername(), payload.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String accessToken = jwtUtils.generateJwtToken(authentication);

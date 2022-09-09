@@ -7,7 +7,7 @@
     </appender>
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/Users/rfatchurrohman/logfiles/all-level.log</file>
+        <file>all-level.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/tmp/logback.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
@@ -24,7 +24,7 @@
 
     <appender name="file-error" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- Please change to desire location -->
-        <file>/Users/rfatchurrohman/logfiles/error.log</file>
+        <file>error.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
         </filter>

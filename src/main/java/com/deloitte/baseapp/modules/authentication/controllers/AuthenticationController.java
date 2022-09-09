@@ -6,6 +6,7 @@ import com.deloitte.baseapp.modules.account.entities.User;
 import com.deloitte.baseapp.modules.account.exceptions.RoleNotFoundException;
 import com.deloitte.baseapp.modules.authentication.exception.BadCredentialException;
 import com.deloitte.baseapp.modules.authentication.exception.EmailHasBeenUsedException;
+import com.deloitte.baseapp.modules.authentication.exception.UsernameHasBeenUsedException;
 import com.deloitte.baseapp.modules.authentication.payloads.ForgotPasswordRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.IdleTimeoutRequest;
 import com.deloitte.baseapp.modules.authentication.payloads.SigninRequest;
@@ -29,7 +30,7 @@ public class AuthenticationController {
         try {
             User user = authenticationService.signup(payload);
             return new MessageResponse<>(user);
-        } catch (final EmailHasBeenUsedException | RoleNotFoundException ex) {
+        } catch (final EmailHasBeenUsedException | UsernameHasBeenUsedException | RoleNotFoundException ex) {
             return MessageResponse.ErrorWithCode(ex.getMessage(), 400);
         }
     }
